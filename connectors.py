@@ -1,7 +1,3 @@
-from enum import Enum
-
-
-class Connectors(Enum):
-    HORIZONTAL = 'h'
-    VERTICAL = 'v'
-    NONE = 'n'
+class Connectors:
+    def transform(self, g_action: "GroupAction"):
+        pass

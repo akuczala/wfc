@@ -17,7 +17,7 @@ class GroupAction:
 
     @singledispatchmethod
     def transform(self, x):
-        raise TypeError(f"GroupAction cannot transform {type(x)}")
+        raise TypeError(f"GroupAction cannot transform {x} which is of type {type(x)}")
 
     @transform.register
     def _(self, x: Directions):
@@ -25,14 +25,7 @@ class GroupAction:
 
     @transform.register
     def _(self, x: Connectors):
-        if self.matrix[0,1] != 0: #off-diagonal element implies x<->y
-            return {
-                Connectors.HORIZONTAL: Connectors.VERTICAL,
-                Connectors.VERTICAL: Connectors.HORIZONTAL,
-                Connectors.NONE: Connectors.NONE
-            }[x]
-        else:
-            return x
+        return x.transform(self)
 
     @transform.register
     def _(self, x: np.ndarray):
@@ -112,7 +105,7 @@ class D4(Group):
     def get_elements(self):
         s = self.s
         t = self.t
-        return Z4(s).get_elements().union({z * t for z in Z4.get_elements(s)})
+        return Z4(s).get_elements().union({z * t for z in Z4(s).get_elements()})
 
 
 class TileSymmetryGenerator:

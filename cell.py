@@ -1,3 +1,5 @@
+import numpy as np
+
 from tiles import random_tile
 
 
@@ -15,6 +17,9 @@ class Cell:
         pass
 
     def get_compatible_tiles(self, direction):
+        pass
+
+    def get_pixels(self) -> np.ndarray:
         pass
 
 
@@ -43,6 +48,9 @@ class UncollapsedCell(Cell):
     def __repr__(self):
         return str(self.entropy())
 
+    def get_pixels(self) -> np.ndarray:
+        return np.mean([self.tile_data[t].pixels for t in self.tiles],axis=0)
+
 
 class CollapsedCell(Cell):
     def __init__(self, tile_data, tile):
@@ -62,6 +70,9 @@ class CollapsedCell(Cell):
 
     def get_compatible_tiles(self, direction):
         return self.tile_data[self.tile].compatible_tiles[direction]
+
+    def get_pixels(self) -> np.ndarray:
+        return self.tile_data[self.tile].pixels
 
     @property
     def tiles(self):

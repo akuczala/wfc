@@ -54,15 +54,19 @@ class Grid:
             ((i, entropy)
              for i, entropy in enumerate(cell.entropy() for cell in self.cells.ravel())
              if entropy > 0),
-            default=(0, 0))
+            key=lambda tup: tup[1], default=(0, 0))
         return np.unravel_index(idx, self.cells.shape), min_entropy
 
     def print(self):
         for i in range(self.width):
             print("".join([repr(self.cells[i, j]) for j in range(self.height)]))
 
+    def print_entropy(self):
+        for i in range(self.width):
+            print("".join(["{:>2}|".format(self.cells[i, j].entropy()) for j in range(self.height)]))
+
     def synthesize_img(self):
         return np.concatenate([
-            np.concatenate([self.tile_data[c.tile].pixels for c in row], axis=1)
+            np.concatenate([c.get_pixels() for c in row], axis=1)
             for row in self.cells], axis=0
         )

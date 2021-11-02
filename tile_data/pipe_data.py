@@ -1,12 +1,9 @@
-from enum import Enum
-from typing import Dict
-
 import numpy as np
 
-from connectors import Connectors
 from directions import Directions
-from symmetry import Trivial, Z2, Group, Z4, TileSymmetryGenerator
-from tiles import ProtoTileNames, ProtoTileData
+from symmetry import Trivial, Z2, Group, Z4
+from tile_data.connectors import PipeConnectors
+from tiles import ProtoTileNames
 from tileset import TileSet
 
 class PipeProtoTileNames(ProtoTileNames):
@@ -28,34 +25,34 @@ class PipeTileSet(TileSet):
     }
     tile_constraints = {
         PipeProtoTileNames.EMPTY: {
-            Directions.UP: Connectors.NONE,
-            Directions.DOWN: Connectors.NONE,
-            Directions.LEFT: Connectors.NONE,
-            Directions.RIGHT: Connectors.NONE,
+            Directions.UP: PipeConnectors.NONE,
+            Directions.DOWN: PipeConnectors.NONE,
+            Directions.LEFT: PipeConnectors.NONE,
+            Directions.RIGHT: PipeConnectors.NONE,
         },
         PipeProtoTileNames.HORIZONTAL_PIPE: {
-            Directions.UP: Connectors.NONE,
-            Directions.DOWN: Connectors.NONE,
-            Directions.LEFT: Connectors.HORIZONTAL,
-            Directions.RIGHT: Connectors.HORIZONTAL,
+            Directions.UP: PipeConnectors.NONE,
+            Directions.DOWN: PipeConnectors.NONE,
+            Directions.LEFT: PipeConnectors.HORIZONTAL,
+            Directions.RIGHT: PipeConnectors.HORIZONTAL,
         },
         PipeProtoTileNames.CROSS_PIPE: {
-            Directions.UP: Connectors.VERTICAL,
-            Directions.DOWN: Connectors.VERTICAL,
-            Directions.LEFT: Connectors.HORIZONTAL,
-            Directions.RIGHT: Connectors.HORIZONTAL,
+            Directions.UP: PipeConnectors.VERTICAL,
+            Directions.DOWN: PipeConnectors.VERTICAL,
+            Directions.LEFT: PipeConnectors.HORIZONTAL,
+            Directions.RIGHT: PipeConnectors.HORIZONTAL,
         },
         PipeProtoTileNames.ANGLE_PIPE: {
-            Directions.UP: Connectors.VERTICAL,
-            Directions.DOWN: Connectors.NONE,
-            Directions.LEFT: Connectors.NONE,
-            Directions.RIGHT: Connectors.HORIZONTAL,
+            Directions.UP: PipeConnectors.VERTICAL,
+            Directions.DOWN: PipeConnectors.NONE,
+            Directions.LEFT: PipeConnectors.NONE,
+            Directions.RIGHT: PipeConnectors.HORIZONTAL,
         },
         PipeProtoTileNames.TERMINAL: {
-            Directions.UP: Connectors.VERTICAL,
-            Directions.DOWN: Connectors.NONE,
-            Directions.LEFT: Connectors.NONE,
-            Directions.RIGHT: Connectors.NONE,
+            Directions.UP: PipeConnectors.VERTICAL,
+            Directions.DOWN: PipeConnectors.NONE,
+            Directions.LEFT: PipeConnectors.NONE,
+            Directions.RIGHT: PipeConnectors.NONE,
         }
     }
     tile_weights = {
