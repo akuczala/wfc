@@ -4,7 +4,19 @@ import numpy as np
 
 from connectors import Connectors
 from directions import Directions
-from tiles import ProtoTileNames, ProtoTileData, PipeProtoTileNames
+from tiles import ProtoTileNames, ProtoTileData
+
+
+class PipeProtoTileNames(ProtoTileNames):
+    EMPTY = ' '
+    HORIZONTAL_PIPE = '-'
+    VERTICAL_PIPE = '|'
+    CROSS_PIPE = '+'
+    ANGLE_PIPE_1 = 'a'
+    ANGLE_PIPE_2 = 'b'
+    ANGLE_PIPE_3 = 'c'
+    ANGLE_PIPE_4 = 'd'
+    TERMINAL = 't'
 
 
 def build_proto_data() -> Dict[ProtoTileNames, ProtoTileData]:

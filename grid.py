@@ -60,3 +60,9 @@ class Grid:
     def print(self):
         for i in range(self.width):
             print("".join([repr(self.cells[i, j]) for j in range(self.height)]))
+
+    def synthesize_img(self):
+        return np.concatenate([
+            np.concatenate([self.tile_data[c.tile].pixels for c in row], axis=1)
+            for row in self.cells], axis=0
+        )

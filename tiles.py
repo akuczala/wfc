@@ -14,18 +14,6 @@ class ProtoTileNames(Enum):
         return {t for t in self}
 
 
-class PipeProtoTileNames(ProtoTileNames):
-    EMPTY = ' '
-    HORIZONTAL_PIPE = '-'
-    VERTICAL_PIPE = '|'
-    CROSS_PIPE = '+'
-    ANGLE_PIPE_1 = 'a'
-    ANGLE_PIPE_2 = 'b'
-    ANGLE_PIPE_3 = 'c'
-    ANGLE_PIPE_4 = 'd'
-    TERMINAL = 't'
-
-
 @dataclass
 class ProtoTileData:
     constraints: Dict[Directions, Connectors]
@@ -56,22 +44,3 @@ class TileData:
     pixels: Set[TileNames]
 
 
-def generate_compatible_tiles(proto_tile_data: Dict[ProtoTileNames, ProtoTileData]):
-    tile_name_enum = type(next(iter(proto_tile_data.keys())))
-    return {
-        tile: TileData(
-            name=tile,
-            weight=proto_tile_data[tile].weight,
-            compatible_tiles={
-                direction: get_constraint_compatible_tiles(proto_tile_data, tile, direction)
-                for direction in Directions
-            },
-            pixels=proto_tile_data[tile].pixels
-        ) for tile in tile_name_enum
-    }
-
-
-def get_constraint_compatible_tiles(proto_tile_data, this_tile, direction):
-    tile_name_enum = type(next(iter(proto_tile_data.keys())))
-    connector = proto_tile_data[this_tile].constraints[direction]
-    return {tile for tile in tile_name_enum if proto_tile_data[tile].constraints[direction.reverse()] == connector}

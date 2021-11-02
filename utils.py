@@ -21,12 +21,12 @@ def is_even(n: int) -> bool:
 def pixel_coord_to_pos(i, j, n):
     shift = n - 1 if is_even(n) else (n - 1)//2
     scale = 2 if is_even(n) else 1
-    return i * scale - shift, j * scale - shift
+    return j * scale - shift, i * scale - shift
 
 def pos_to_pixel_coord(x, y, n):
     shift = n - 1 if is_even(n) else (n - 1) // 2
     scale = 2 if is_even(n) else 1
-    return (x + shift) // scale, (y + shift) // scale
+    return (y + shift) // scale, (x + shift) // scale
 
 def transform_pixels(transform, pixels):
     n = pixels.shape[0]

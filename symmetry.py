@@ -25,11 +25,14 @@ class GroupAction:
 
     @transform.register
     def _(self, x: Connectors):
-        return {
-            Connectors.HORIZONTAL: Connectors.VERTICAL,
-            Connectors.VERTICAL: Connectors.HORIZONTAL,
-            Connectors.NONE: Connectors.NONE
-        }[x]
+        if self.matrix[0,1] != 0: #off-diagonal element implies x<->y
+            return {
+                Connectors.HORIZONTAL: Connectors.VERTICAL,
+                Connectors.VERTICAL: Connectors.HORIZONTAL,
+                Connectors.NONE: Connectors.NONE
+            }[x]
+        else:
+            return x
 
     @transform.register
     def _(self, x: np.ndarray):
@@ -68,6 +71,11 @@ class Group:
     def __len__(self):
         return len(self.get_elements())
 
+
+@dataclass
+class Trivial(Group):
+    def get_elements(self) -> Set[GroupAction]:
+        return {Group.id()}
 
 @dataclass
 class K4(Group):
@@ -141,3 +149,4 @@ class TileSymmetryGenerator:
 
     def generate_tile_names(self, tile_data: ProtoTileData):
         return {self._transform_tile_name(g, tile_data.name) for g in self.symmetry.get_elements()}
+
