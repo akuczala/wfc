@@ -2,7 +2,7 @@ from typing import Dict
 
 import numpy as np
 
-from cell import UncollapsedCell
+from cell import UncollapsedCell, Cell
 from directions import Directions
 from propagator import Propagator
 from tiles import TileNames, TileData
@@ -19,15 +19,18 @@ class Grid:
             ] for x in range(width)
         ])
 
+    def get_cell(self, i: int, j: int) -> Cell:
+        return self.cells[i, j]  # todo boundary conditions
+
     def local_collapse(self, i, j):
-        self.cells[i, j] = self.cells[i, j].collapse()
+        self.cells[i, j] = self.get_cell(i, j).collapse()
         for direction in Directions:
-            compatible_tiles = self.cells[i, j].get_compatible_tiles(direction)
+            compatible_tiles = self.get_cell(i, j).get_compatible_tiles(direction)
             ni, nj = self.neighbor(i, j, direction)
-            self.cells[ni, nj].constrain(compatible_tiles)
+            self.get_cell(i, j).constrain(compatible_tiles)
 
     def propagated_collapse(self, i, j):
-        self.cells[i, j] = self.cells[i, j].collapse()
+        self.cells[i, j] = self.get_cell(i, j).collapse()
         Propagator(self).propagate_from(i, j)
 
     def collapse(self, i, j):
@@ -59,11 +62,11 @@ class Grid:
 
     def print(self):
         for i in range(self.width):
-            print("".join([repr(self.cells[i, j]) for j in range(self.height)]))
+            print("".join([repr(self.get_cell(i, j)) for j in range(self.height)]))
 
     def print_entropy(self):
         for i in range(self.width):
-            print("".join(["{:>2}|".format(self.cells[i, j].entropy()) for j in range(self.height)]))
+            print("".join(["{:>2}|".format(self.get_cell(i, j).entropy()) for j in range(self.height)]))
 
     def synthesize_img(self):
         return np.concatenate([
