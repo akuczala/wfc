@@ -1,4 +1,5 @@
-from typing import Dict
+import itertools
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -9,7 +10,8 @@ from tiles import TileNames, TileData
 
 
 class Grid:
-    def __init__(self, width: int, height: int, tile_data):
+    def __init__(self, width: int, height: int, tile_data, periodic):
+        self.periodic = False
         self.width = width
         self.height = height
         self.tile_data: Dict[TileNames, TileData] = tile_data
@@ -18,6 +20,12 @@ class Grid:
                 UncollapsedCell(tile_data, {*self.tile_data.keys()}) for y in range(height)
             ] for x in range(width)
         ])
+        # if not self.periodic:
+        #     for (i, j) in itertools.product(range(self.width), (0, self.height - 1)):
+        #         self.propagated_collapse(i, j)
+        #     for (i, j) in itertools.product((0, self.width - 1),range(self.height)):
+        #         self.propagated_collapse(i, j)
+
 
     def get_cell(self, i: int, j: int) -> Cell:
         return self.cells[i, j]  # todo boundary conditions
@@ -27,7 +35,7 @@ class Grid:
         for direction in Directions:
             compatible_tiles = self.get_cell(i, j).get_compatible_tiles(direction)
             ni, nj = self.neighbor(i, j, direction)
-            self.get_cell(i, j).constrain(compatible_tiles)
+            self.get_cell(ni, nj).constrain(compatible_tiles)
 
     def propagated_collapse(self, i, j):
         self.cells[i, j] = self.get_cell(i, j).collapse()
@@ -43,14 +51,26 @@ class Grid:
                 break
             self.collapse(*minpos)
 
-    def periodic(self, i, j):
+    def get_periodic(self, i, j):
         return (i % self.width), (j % self.height)
 
-    def neighbor(self, i, j, direction):
-        return self.periodic(i + direction.value[0], j + direction.value[1])
+    def in_bounds(self, i: int, j: int) -> bool:
+        return (0 <= i < self.width) and (0 <= j < self.height)
 
-    def neighbors(self, i, j):
-        return [self.neighbor(i, j, d) for d in Directions]
+    def neighbor(self, i, j, direction: Directions):
+        if self.periodic:
+            return self.get_periodic(i + direction.value[0], j + direction.value[1])
+        else:
+            return i + direction.value[0], j + direction.value[1]
+
+
+    def get_neighbor_dict(self, i: int, j: int) -> Dict[Directions, Tuple[int, int]]:
+        return {
+            d: pos
+            for d, pos in
+            ((d, self.neighbor(i, j, d)) for d in Directions)
+            if self.in_bounds(*pos)
+        }
 
     def min_entropy_pos(self):
         idx, min_entropy = min(

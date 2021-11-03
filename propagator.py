@@ -10,9 +10,8 @@ class Propagator:
 
     def constrain(self, i: int, j: int):
         # print(i,j)
-        for direction in Directions:
+        for direction, (ni, nj) in self.grid.get_neighbor_dict(i, j).items():
             compatible_tiles = self.grid.get_cell(i, j).get_compatible_tiles(direction)
-            ni, nj = self.grid.neighbor(i, j, direction)
             prev_len = len(self.grid.get_cell(ni, nj).tiles)
             self.grid.cells[ni, nj] = self.grid.get_cell(ni, nj).constrain(compatible_tiles)
             new_len = len(self.grid.get_cell(ni, nj).tiles)
