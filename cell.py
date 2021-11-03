@@ -1,24 +1,31 @@
+from abc import ABC, abstractmethod
+
 import numpy as np
 
 from tiles import random_tile
 
 
-class Cell:
+class Cell(ABC):
     def __init__(self, tile_data):
         self.tile_data = tile_data
 
+    @abstractmethod
     def entropy(self):
         pass
 
+    @abstractmethod
     def collapse(self):
         pass
 
+    @abstractmethod
     def constrain(self, tiles):
         pass
 
+    @abstractmethod
     def get_compatible_tiles(self, direction):
         pass
 
+    @abstractmethod
     def get_pixels(self) -> np.ndarray:
         pass
 

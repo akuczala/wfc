@@ -1,3 +1,4 @@
+from abc import ABC
 from enum import Enum
 from typing import Dict
 
@@ -9,7 +10,7 @@ from symmetry import TileSymmetryGenerator, Group
 from tiles import ProtoTileData, ProtoTileNames, TileData
 
 
-class TileSet:
+class TileSet(ABC):
     SYM_PROTO_TILE_NAMES_ENUM_NAME: str
     proto_tile_name_enum: type(ProtoTileNames)
     tile_constraints: Dict[ProtoTileNames, Dict[Directions, Connectors]]
