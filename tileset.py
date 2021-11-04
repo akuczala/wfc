@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import Dict
+from typing import Dict, Type
 
 import numpy as np
 
@@ -12,7 +12,7 @@ from tiles import ProtoTileData, ProtoTileNames, TileData
 
 class TileSet(ABC):
     SYM_PROTO_TILE_NAMES_ENUM_NAME: str
-    proto_tile_name_enum: type(ProtoTileNames)
+    proto_tile_name_enum: Type[ProtoTileNames]
     tile_constraints: Dict[ProtoTileNames, Dict[Directions, Connectors]]
     tile_weights: Dict[ProtoTileNames, float]
     tile_imgs: Dict[ProtoTileNames, np.ndarray]
@@ -22,7 +22,7 @@ class TileSet(ABC):
         self.proto_tile_data = self.build_proto_data()
         self.sym_proto_tile_data = self.symmetry_build()
         self.tile_data = self.generate_compatible_tiles()
-        self.tile_name_enum: type(ProtoTileNames)
+        self.tile_name_enum: Type[ProtoTileNames]
 
     @classmethod
     def build_proto_data(cls) -> Dict[ProtoTileNames, ProtoTileData]:

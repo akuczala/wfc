@@ -1,13 +1,14 @@
 from enum import Enum, auto
 from typing import Optional
 
+from abc_enum import ABCEnumMeta
 from connectors import Connectors
 from directions import Directions
 from symmetry import GroupAction
 from utils import optional_map
 
 
-class PipeConnectors(Connectors, Enum):
+class PipeConnectors(Connectors, Enum, metaclass=ABCEnumMeta):
     HORIZONTAL = 'h'
     VERTICAL = 'v'
     NONE = 'n'
@@ -23,7 +24,7 @@ class PipeConnectors(Connectors, Enum):
             return self
 
 
-class DirectedPipeConnectors(Connectors, Enum):
+class DirectedPipeConnectors(Connectors, Enum, metaclass=ABCEnumMeta):
     UP = auto()
     DOWN = auto()
     RIGHT = auto()
