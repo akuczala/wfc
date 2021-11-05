@@ -1,3 +1,4 @@
+import itertools
 from typing import Dict
 
 import numpy as np
@@ -9,13 +10,15 @@ from tiles import TileNames, TileData
 
 
 class Grid:
-    def __init__(self, width: int, height: int, tile_data):
+    def __init__(self, width: int, height: int, tile_data, init_cell_factory=None):
         self.width = width
         self.height = height
         self.tile_data: Dict[TileNames, TileData] = tile_data
+        if init_cell_factory is None:
+            init_cell_factory = lambda: UncollapsedCell(self.tile_data, {*self.tile_data.keys()})
         self.cells = np.array([
             [
-                UncollapsedCell(tile_data, {*self.tile_data.keys()}) for y in range(height)
+                init_cell_factory() for y in range(height)
             ] for x in range(width)
         ])
 
@@ -36,12 +39,20 @@ class Grid:
     def collapse(self, i, j):
         return self.propagated_collapse(i, j)
 
-    def collapse_all(self):
+    def min_entropy_collapse(self):
         for _ in range(self.width * self.height):
             minpos, min_val = self.min_entropy_pos()
             if min_val == 0:
                 break
             self.collapse(*minpos)
+
+    def scanline_collapse(self):
+        for pos in self.pos_iterator:
+            self.collapse(*pos)
+
+    @property
+    def pos_iterator(self):
+        return itertools.product(range(self.width),range(self.height))
 
     def periodic(self, i, j):
         return (i % self.width), (j % self.height)

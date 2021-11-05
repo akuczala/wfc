@@ -12,12 +12,12 @@ from tileset import TileSet
 ConnectorsEnum = DirectedPipeConnectors
 
 class DirectedProtoTileNames(ProtoTileNames):
-    EMPTY = auto()
-    PIPE = auto()
-    CROSS_PIPE = auto()
-    ANGLE_PIPE = auto()
-    EMITTER = auto()
-    CONSUMER = auto()
+    EMPTY = 'EMPTY'
+    PIPE = 'PIPE'
+    CROSS_PIPE = 'CROSS_PIPE'
+    ANGLE_PIPE = 'ANGLE_PIPE'
+    EMITTER = 'EMITTER'
+    CONSUMER = 'CONSUMER'
 
 
 def generate_tile_pixels():

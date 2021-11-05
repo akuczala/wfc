@@ -21,6 +21,7 @@ class ProtoTileData:
     name: ProtoTileNames
     pixels: np.array
 
+
 def random_tile(tile_data, tiles):
     tile_list = list(tiles)
     probs = np.array([tile_data[t].weight for t in tile_list])
