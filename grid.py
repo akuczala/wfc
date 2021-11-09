@@ -63,6 +63,10 @@ class Grid:
     def neighbors(self, i, j):
         return [self.neighbor(i, j, d) for d in Directions]
 
+    @property
+    def pos_iterator(self):
+        return itertools.product(range(self.width), range(self.height))
+
     def min_entropy_pos(self):
         idx, min_entropy = min(
             ((i, entropy)
