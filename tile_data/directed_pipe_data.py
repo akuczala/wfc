@@ -93,7 +93,7 @@ class DirectedPipeTileSet(TileSet):
         }
     }
     tile_weights = {
-        proto_tile_name_enum.EMPTY: 10,
+        proto_tile_name_enum.EMPTY: 1000,
         proto_tile_name_enum.PIPE: 3,
         proto_tile_name_enum.CROSS_PIPE: 0.1,
         proto_tile_name_enum.ANGLE_PIPE: 0.5,

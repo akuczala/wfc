@@ -15,44 +15,52 @@ from tileset import TileSet
 
 def make_grid(tileset: TileSet):
 
-    width, height = 20, 20
+    width, height = 40, 40
 
     empty_tile = tileset.tile_name_enum('EMPTY_I')
-    emitter_tile = tileset.tile_name_enum('EMITTER_S')
-    consumer_tile = tileset.tile_name_enum('CONSUMER_I')
+    z4_names = ['I','S','SS','SSS']
+    emitter_tiles = {tileset.tile_name_enum(f'EMITTER_{g}') for g in z4_names}
+    consumer_tiles = {tileset.tile_name_enum(f'CONSUMER_{g}') for g in z4_names}
 
     grid = GridArray(width, height,
-                #boundary=ConstantGridBoundary(CollapsedCell(tileset.tile_data, empty_tile)),
-                boundary=PeriodicGridBoundary(),
+                boundary=ConstantGridBoundary(CollapsedCell(tileset.tile_data, empty_tile)),
+                #boundary=PeriodicGridBoundary(),
                 tile_data=tileset.tile_data,
                 init_cell_factory=lambda: CollapsedCell(tileset.tile_data, empty_tile)
                 #init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                 )
 
-    sub_grid = SubGrid(grid, (5, 5), (8, 8), tileset.tile_data,
-                       init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset))
+    init_cell_factory = lambda: UncollapsedCell.excluding_weight_zero(tileset)
+    sub_grid = SubGrid(grid, (0, 0), (40, 40), tileset.tile_data,
+                       init_cell_factory=init_cell_factory)
+    place_emitter_consumer(tileset, grid)
+    sub_grid.scanline_collapse()
+    #collapse_animation_2(sub_grid, grid)
 
-    collapse_animation_2(sub_grid, grid)
+    # sub_grid = SubGrid(grid, (3, 3), (8, 8), tileset.tile_data,
+    #                    init_cell_factory=init_cell_factory)
+    # place_emitter_consumer(tileset, grid)
+    # collapse_animation_2(sub_grid, grid)
 
-    sub_grid = SubGrid(grid, (3, 3), (8, 8), tileset.tile_data,
-                       init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset))
-
-    collapse_animation_2(sub_grid, grid)
-    # for (i, j) in itertools.product(range(10), range(10)):
-    #     grid.cells[i, j] = UncollapsedCell(tileset.tile_data, {t for t in tileset.tile_name_enum})
-    #     Propagator(grid).propagate_from(i, j)
-    #     #plt.imshow(grid.synthesize_img(), cmap='gray')
-    #     #plt.show()
-    # for (i, j), tile in zip([(5, 5), (15, 15)], [consumer_tile, emitter_tile]):
-    #     grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
-    #     grid.collapse(i, j)
 
     #grid.scanline_collapse()
 
 
 
-    #plt.imshow(grid.synthesize_img(), cmap='gray')
+    plt.imshow(grid.synthesize_img(), cmap='gray')
     plt.show()
+
+
+def place_emitter_consumer(tileset, grid):
+    emitter_tile = tileset.tile_name_enum('EMITTER_S')
+    consumer_tile = tileset.tile_name_enum('CONSUMER_I')
+    for (i, j), tile in zip(
+            [(5, 5), (30, 30), (5, 30), (30, 5)],
+            [consumer_tile, emitter_tile, consumer_tile, emitter_tile]
+    ):
+        grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
+        grid.collapse(i, j)
+
 
 def collapse_animation(grid):
     for pos in grid.pos_iterator:

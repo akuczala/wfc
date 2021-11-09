@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Set
 
 import numpy as np
 
-from tiles import random_tile
+from tiles import random_tile, TileNames
 from tileset import TileSet
 
 
@@ -39,6 +40,16 @@ class UncollapsedCell(Cell):
     @classmethod
     def with_any_tile(cls, tileset: TileSet):
         return UncollapsedCell(tileset.tile_data, {t for t in tileset.tile_name_enum})
+
+    @classmethod
+    def excluding_tiles(cls, tileset: TileSet, excluded_tiles: Set[TileNames]):
+        tiles = {t for t in tileset.tile_name_enum}.difference(excluded_tiles)
+        return UncollapsedCell(tileset.tile_data, tiles)
+
+    @classmethod
+    def excluding_weight_zero(cls, tileset: TileSet):
+        tiles = {t for t in tileset.tile_name_enum if tileset.tile_data[t].weight > 0}
+        return UncollapsedCell(tileset.tile_data, tiles)
 
     def entropy(self):
         return len(self.tiles)
