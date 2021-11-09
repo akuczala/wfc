@@ -4,6 +4,8 @@ from tile_data.directed_pipe_data import DirectedPipeTileSet
 from tile_data.pipe_data import PipeTileSet
 from matplotlib import pyplot as plt
 
+from tile_data.zelda_data import ZeldaTileSet
+from tile_data.zelda_two_level import Zelda2TileSet
 from tileset import TileSet
 
 
@@ -12,12 +14,13 @@ def make_grid(tileset: TileSet):
     width, height = 10, 10
     grid = Grid(width, height, tileset.tile_data)
 
-    emitter_tile = tileset.tile_name_enum('5_I')
-    consumer_tile = tileset.tile_name_enum('6_I')
-    for (i, j), tile in zip([(2, 2), (7, 7)], [emitter_tile, consumer_tile]):
-        grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
-        grid.collapse(i, j)
+    # emitter_tile = tileset.tile_name_enum('5_I')
+    # consumer_tile = tileset.tile_name_enum('6_I')
+    # for (i, j), tile in zip([(2, 2), (7, 7)], [emitter_tile, consumer_tile]):
+    #     grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
+    #     grid.collapse(i, j)
 
+    #collapse_animation_2(grid)
     grid.collapse_all()
 
     #grid.print()
@@ -41,7 +44,28 @@ def pixel_test(tileset):
     plt.imshow(tileset.tile_data[tile_I].pixels); plt.show()
     plt.imshow(tileset.tile_data[tile_S].pixels); plt.show()
 
-tileset = DirectedPipeTileSet()
+def collapse_animation_2(grid):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.animation import FuncAnimation
+
+    fig = plt.figure()
+    img = plt.imshow(grid.synthesize_img(), cmap='gray', animated=True)
+    pos_iter = grid.pos_iterator
+
+    def update(*args):
+        pos = next(pos_iter)
+        grid.propagated_collapse(*pos)
+        img.set_array(grid.synthesize_img())
+        return [img]
+
+    try:
+        ani = FuncAnimation(fig, update, frames=grid.width * grid.height, interval=10, blit=True, repeat=False)
+        plt.show()
+    except StopIteration:
+        pass
+
+tileset = Zelda2TileSet()
 make_grid(tileset)
 #pixel_test(tileset)
 pass
