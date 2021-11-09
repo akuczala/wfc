@@ -9,8 +9,7 @@ class GridArray(Grid):
     def __init__(self, width: int, height: int, boundary: GridBoundary, tile_data, init_cell_factory=None):
         super().__init__((0, width), (0, height), boundary, tile_data, init_cell_factory)
         self.cells: np.ndarray
-        self.populate_grid(init_cell_factory)
-        self.constrain_boundary()
+
 
     def populate_grid(self, init_cell_factory):
         self.cells = np.array([

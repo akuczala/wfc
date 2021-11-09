@@ -6,16 +6,23 @@ from grid_boundary import SuperGridBoundary
 
 
 class SubGrid(Grid):
-    def __init__(self, super_grid: Grid, pos: Tuple[int, int], size: Tuple[int, int], init_cell_factory):
+
+    def __init__(self, super_grid: Grid, pos: Tuple[int, int], size: Tuple[int, int], tile_data, init_cell_factory):
+        self.super_grid = super_grid
+        self.pos = pos
+        self.size = size
         super().__init__(
             (pos[0], pos[0] + size[0]),
             (pos[1], pos[1] + size[1]),
             SuperGridBoundary(),
+            tile_data,
             init_cell_factory
         )
-        self.super_grid = super_grid
-        self.pos = pos
-        self.size = size
+
+
+    def populate_grid(self, init_cell_factory):
+        for (i, j) in self.pos_iterator:
+            self.set_cell(i, j, init_cell_factory())
 
     def get_cell(self, i: int, j: int) -> Cell:
         if self.in_bounds(i, j):

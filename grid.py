@@ -21,6 +21,7 @@ class Grid(ABC):
         if init_cell_factory is None:
             init_cell_factory = lambda: UncollapsedCell(self.tile_data, {*self.tile_data.keys()})
         self.populate_grid(init_cell_factory)
+        self.constrain_boundary()
 
     @abstractmethod
     def populate_grid(self, init_cell_factory):

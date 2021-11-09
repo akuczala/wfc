@@ -49,7 +49,8 @@ class SuperGridBoundary(GridBoundary):
 
     def map_pos(self, grid, i: int, j: int) -> Optional[Tuple[int, int]]:
         self.error_if_in_bounds(grid, i, j)
-        return i, j
+        #return i, j
+        return None
 
     def get_cell(self, grid, i: int, j: int) -> Cell:
         self.error_if_in_bounds(grid, i, j)
