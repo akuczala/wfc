@@ -15,7 +15,7 @@ from tileset import TileSet
 
 def make_grid(tileset: TileSet):
 
-    width, height = 40, 40
+    width, height = 20, 20
 
     empty_tile = tileset.tile_name_enum('EMPTY_I')
     z4_names = ['I','S','SS','SSS']
@@ -31,11 +31,11 @@ def make_grid(tileset: TileSet):
                 )
 
     init_cell_factory = lambda: UncollapsedCell.excluding_weight_zero(tileset)
-    sub_grid = SubGrid(grid, (0, 0), (40, 40), tileset.tile_data,
+    sub_grid = SubGrid(grid, (0, 0), (20, 20), tileset.tile_data,
                        init_cell_factory=init_cell_factory)
     place_emitter_consumer(tileset, grid)
-    sub_grid.scanline_collapse()
-    #collapse_animation_2(sub_grid, grid)
+    #sub_grid.scanline_collapse()
+    collapse_animation_2(sub_grid, grid)
 
     # sub_grid = SubGrid(grid, (3, 3), (8, 8), tileset.tile_data,
     #                    init_cell_factory=init_cell_factory)
@@ -55,8 +55,8 @@ def place_emitter_consumer(tileset, grid):
     emitter_tile = tileset.tile_name_enum('EMITTER_S')
     consumer_tile = tileset.tile_name_enum('CONSUMER_I')
     for (i, j), tile in zip(
-            [(5, 5), (30, 30), (5, 30), (30, 5)],
-            [consumer_tile, emitter_tile, consumer_tile, emitter_tile]
+            [(5, 5), (15, 15), (6, 14), (13, 4)],
+            [emitter_tile, consumer_tile, consumer_tile, consumer_tile]
     ):
         grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
         grid.collapse(i, j)
@@ -72,6 +72,7 @@ def collapse_animation(grid):
         plt.imshow(grid.synthesize_img(), cmap='gray')
         plt.show()
 
+
 def collapse_animation_2(update_grid, display_grid):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -80,6 +81,7 @@ def collapse_animation_2(update_grid, display_grid):
     fig = plt.figure()
     img = plt.imshow(display_grid.synthesize_img(), cmap='gray', animated=True)
     pos_iter = update_grid.pos_iterator
+    #pos_iter = update_grid.min_entropy_pos_iterator
 
     def update(*args):
         pos = next(pos_iter)

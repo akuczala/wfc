@@ -18,6 +18,8 @@ class DirectedProtoTileNames(ProtoTileNames):
     ANGLE_PIPE = 'ANGLE_PIPE'
     EMITTER = 'EMITTER'
     CONSUMER = 'CONSUMER'
+    SPLITTER = 'SPLITTER'
+    MERGER = 'MERGER'
 
 
 def generate_tile_pixels():
@@ -39,6 +41,8 @@ def generate_tile_pixels():
             DirectedProtoTileNames.EMPTY: (0, 3),
             DirectedProtoTileNames.EMITTER: (1, 0),
             DirectedProtoTileNames.CONSUMER: (1, 1),
+            DirectedProtoTileNames.SPLITTER: (2, 0),
+            DirectedProtoTileNames.MERGER: (2, 1),
         }.items()
     }
 
@@ -53,6 +57,8 @@ class DirectedPipeTileSet(TileSet):
         proto_tile_name_enum.ANGLE_PIPE: D4(Group.rot90(), Group.flip_x()),
         proto_tile_name_enum.EMITTER: Z4(Group.rot90()),
         proto_tile_name_enum.CONSUMER: Z4(Group.rot90()),
+        proto_tile_name_enum.SPLITTER: D4(Group.rot90(), Group.flip_x()),
+        proto_tile_name_enum.MERGER: D4(Group.rot90(), Group.flip_x()),
     }
     tile_constraints = {
         proto_tile_name_enum.EMPTY: {
@@ -90,6 +96,18 @@ class DirectedPipeTileSet(TileSet):
             Directions.DOWN: ConnectorsEnum.NONE,
             Directions.LEFT: ConnectorsEnum.NONE,
             Directions.RIGHT: ConnectorsEnum.NONE,
+        },
+        proto_tile_name_enum.SPLITTER: {
+            Directions.UP: ConnectorsEnum.NONE,
+            Directions.DOWN: ConnectorsEnum.DOWN,
+            Directions.LEFT: ConnectorsEnum.RIGHT,
+            Directions.RIGHT: ConnectorsEnum.RIGHT,
+        },
+        proto_tile_name_enum.MERGER: {
+            Directions.UP: ConnectorsEnum.NONE,
+            Directions.DOWN: ConnectorsEnum.DOWN,
+            Directions.LEFT: ConnectorsEnum.RIGHT,
+            Directions.RIGHT: ConnectorsEnum.LEFT,
         }
     }
     tile_weights = {
@@ -98,7 +116,9 @@ class DirectedPipeTileSet(TileSet):
         proto_tile_name_enum.CROSS_PIPE: 0.1,
         proto_tile_name_enum.ANGLE_PIPE: 0.5,
         proto_tile_name_enum.EMITTER: 0.0,
-        proto_tile_name_enum.CONSUMER: 0.0
+        proto_tile_name_enum.CONSUMER: 0.0,
+        proto_tile_name_enum.SPLITTER: 0.001,
+        proto_tile_name_enum.MERGER: 0.001,
 
     }
     tile_imgs = generate_tile_pixels()

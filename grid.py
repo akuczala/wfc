@@ -56,10 +56,7 @@ class Grid(ABC):
         return self.propagated_collapse(i, j)
 
     def min_entropy_collapse(self):
-        for _ in self.pos_iterator:
-            minpos, min_val = self.min_entropy_pos()
-            if min_val == 0:
-                break
+        for _ in self.min_entropy_pos_iterator:
             self.collapse(*minpos)
 
     def scanline_collapse(self):
@@ -111,6 +108,16 @@ class Grid(ABC):
              if entropy > 0),
             key=lambda tup: tup[1], default=((0, 0), 0))
         return pos, min_entropy
+
+    @property
+    def min_entropy_pos_iterator(self):
+        def min_pos_gen():
+            while True:
+                pos, min_entropy = self.min_entropy_pos()
+                if min_entropy == 0:
+                    break
+                yield pos
+        return iter(min_pos_gen())
 
     def print(self):
         for i in self.row_iterator:
