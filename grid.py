@@ -35,7 +35,7 @@ class Grid:
         for direction in Directions:
             compatible_tiles = self.get_cell(i, j).get_compatible_tiles(direction)
             ni, nj = self.neighbor(i, j, direction)
-            self.get_cell(i, j).constrain(compatible_tiles)
+            self.get_cell(ni, nj).constrain(compatible_tiles)
 
     def propagated_collapse(self, i, j):
         self.cells[i, j] = self.get_cell(i, j).collapse()
@@ -62,11 +62,20 @@ class Grid:
     def periodic(self, i, j):
         return (i % self.width), (j % self.height)
 
-    def neighbor(self, i, j, direction):
-        return self.periodic(i + direction.value[0], j + direction.value[1])
+    def neighbor(self, i, j, direction: Directions):
+        if self.periodic:
+            return self.get_periodic(i + direction.value[0], j + direction.value[1])
+        else:
+            return i + direction.value[0], j + direction.value[1]
 
-    def neighbors(self, i, j):
-        return [self.neighbor(i, j, d) for d in Directions]
+
+    def get_neighbor_dict(self, i: int, j: int) -> Dict[Directions, Tuple[int, int]]:
+        return {
+            d: pos
+            for d, pos in
+            ((d, self.neighbor(i, j, d)) for d in Directions)
+            if self.in_bounds(*pos)
+        }
 
     def in_bounds(self, i, j) -> bool:
         return 0 <= i < self.width and 0 <= j < self.height
