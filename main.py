@@ -2,6 +2,8 @@ import itertools
 
 from cell import CollapsedCell, UncollapsedCell
 from grid import Grid
+from grid_boundary import PeriodicGridBoundary
+from propagator import Propagator
 from tile_data.directed_pipe_data import DirectedPipeTileSet
 from tile_data.pipe_data import PipeTileSet
 from matplotlib import pyplot as plt
@@ -13,23 +15,28 @@ def make_grid(tileset: TileSet):
 
     width, height = 20, 20
     empty_tile = tileset.tile_name_enum('EMPTY_I')
-    grid = Grid(width, height, tileset.tile_data,
+    grid = Grid(width, height,
+                boundary=PeriodicGridBoundary(),
+                tile_data=tileset.tile_data,
                 init_cell_factory=lambda: CollapsedCell(tileset.tile_data, empty_tile))
 
     emitter_tile = tileset.tile_name_enum('EMITTER_S')
     consumer_tile = tileset.tile_name_enum('CONSUMER_I')
+
+    for (i, j) in itertools.product(range(10), range(10)):
+        grid.cells[i, j] = UncollapsedCell(tileset.tile_data, {t for t in tileset.tile_name_enum})
+        Propagator(grid).propagate_from(i, j)
+        #plt.imshow(grid.synthesize_img(), cmap='gray')
+        #plt.show()
     # for (i, j), tile in zip([(5, 5), (15, 15)], [consumer_tile, emitter_tile]):
     #     grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
     #     grid.collapse(i, j)
-    for (i,j) in itertools.product(range(10), range(10)):
-        grid.cells[i,j] = UncollapsedCell(tileset.tile_data, {t for t in tileset.tile_name_enum})
-
     #grid.scanline_collapse()
 
-    collapse_animation_2(grid)
+    #collapse_animation_2(grid)
 
-    # plt.imshow(grid.synthesize_img(), cmap='gray')
-    # plt.show()
+    plt.imshow(grid.synthesize_img(), cmap='gray')
+    plt.show()
 
 def collapse_animation(grid):
     for pos in grid.pos_iterator:

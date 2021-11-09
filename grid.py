@@ -5,15 +5,17 @@ import numpy as np
 
 from cell import UncollapsedCell, Cell
 from directions import Directions
+from grid_boundary import GridBoundary
 from propagator import Propagator
 from tiles import TileNames, TileData
 
 
 class Grid:
-    def __init__(self, width: int, height: int, tile_data, init_cell_factory=None):
+    def __init__(self, width: int, height: int, boundary: GridBoundary, tile_data, init_cell_factory=None):
         self.width = width
         self.height = height
         self.tile_data: Dict[TileNames, TileData] = tile_data
+        self.boundary = boundary
         if init_cell_factory is None:
             init_cell_factory = lambda: UncollapsedCell(self.tile_data, {*self.tile_data.keys()})
         self.cells = np.array([
@@ -23,7 +25,10 @@ class Grid:
         ])
 
     def get_cell(self, i: int, j: int) -> Cell:
-        return self.cells[i, j]  # todo boundary conditions
+        if self.in_bounds(i, j):
+            return self.cells[i, j]
+        else:
+            return self.boundary.get_cell(i, j)
 
     def local_collapse(self, i, j):
         self.cells[i, j] = self.get_cell(i, j).collapse()
@@ -62,6 +67,9 @@ class Grid:
 
     def neighbors(self, i, j):
         return [self.neighbor(i, j, d) for d in Directions]
+
+    def in_bounds(self, i, j) -> bool:
+        return 0 <= i < self.width and 0 <= j < self.height
 
     @property
     def pos_iterator(self):
