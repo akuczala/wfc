@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from tiles import random_tile
+from tileset import TileSet
 
 
 class Cell(ABC):
@@ -34,6 +35,10 @@ class UncollapsedCell(Cell):
     def __init__(self, tile_data, tiles):
         super().__init__(tile_data)
         self.tiles = tiles
+
+    @classmethod
+    def with_any_tile(cls, tileset: TileSet):
+        return UncollapsedCell(tileset.tile_data, {t for t in tileset.tile_name_enum})
 
     def entropy(self):
         return len(self.tiles)

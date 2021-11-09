@@ -1,5 +1,6 @@
 import itertools
-from typing import Dict
+from abc import ABC, abstractmethod
+from typing import Dict, Tuple, Optional
 
 import numpy as np
 
@@ -10,42 +11,51 @@ from propagator import Propagator
 from tiles import TileNames, TileData
 
 
-class Grid:
-    def __init__(self, width: int, height: int, boundary: GridBoundary, tile_data, init_cell_factory=None):
-        self.width = width
-        self.height = height
-        self.tile_data: Dict[TileNames, TileData] = tile_data
+class Grid(ABC):
+    def __init__(self, row_bounds, col_bounds, boundary: GridBoundary, tile_data: Dict[TileNames, TileData],
+                 init_cell_factory=None):
+        self.row_bounds = row_bounds
+        self.col_bounds = col_bounds
         self.boundary = boundary
+        self.tile_data = tile_data
         if init_cell_factory is None:
             init_cell_factory = lambda: UncollapsedCell(self.tile_data, {*self.tile_data.keys()})
-        self.cells = np.array([
-            [
-                init_cell_factory() for y in range(height)
-            ] for x in range(width)
-        ])
+        self.populate_grid(init_cell_factory)
 
+    @abstractmethod
+    def populate_grid(self, init_cell_factory):
+        pass
+
+    @abstractmethod
     def get_cell(self, i: int, j: int) -> Cell:
-        if self.in_bounds(i, j):
-            return self.cells[i, j]
-        else:
-            return self.boundary.get_cell(i, j)
+        pass
+
+    @abstractmethod
+    def set_cell(self, i: int, j: int, cell: Cell):
+        pass
+
+    def constrain_boundary(self):
+        for (i, j) in itertools.chain(
+                itertools.product([self.row_bounds[0] - 1, self.row_bounds[1]], self.col_iterator),
+                itertools.product(self.row_iterator, [self.col_bounds[0] - 1, self.col_bounds[1]])
+        ):
+            Propagator(self).constrain(i, j)
 
     def local_collapse(self, i, j):
-        self.cells[i, j] = self.get_cell(i, j).collapse()
-        for direction in Directions:
+        self.set_cell(self.get_cell(i, j).collapse())
+        for direction, npos in self.get_neighbor_dict(i, j):
             compatible_tiles = self.get_cell(i, j).get_compatible_tiles(direction)
-            ni, nj = self.neighbor(i, j, direction)
-            self.get_cell(ni, nj).constrain(compatible_tiles)
+            self.get_cell(*npos).constrain(compatible_tiles)
 
     def propagated_collapse(self, i, j):
-        self.cells[i, j] = self.get_cell(i, j).collapse()
+        self.set_cell(i, j, self.get_cell(i, j).collapse())
         Propagator(self).propagate_from(i, j)
 
     def collapse(self, i, j):
         return self.propagated_collapse(i, j)
 
     def min_entropy_collapse(self):
-        for _ in range(self.width * self.height):
+        for _ in self.pos_iterator:
             minpos, min_val = self.min_entropy_pos()
             if min_val == 0:
                 break
@@ -56,52 +66,55 @@ class Grid:
             self.collapse(*pos)
 
     @property
+    def row_iterator(self):
+        return range(self.row_bounds[0], self.row_bounds[1])
+
+    @property
+    def col_iterator(self):
+        return range(self.col_bounds[0], self.col_bounds[1])
+
+    @property
     def pos_iterator(self):
-        return itertools.product(range(self.width),range(self.height))
+        return itertools.product(self.row_iterator, self.col_iterator)
 
-    def periodic(self, i, j):
-        return (i % self.width), (j % self.height)
+    @property
+    def width(self):
+        return self.row_bounds[1] - self.row_bounds[0]
 
-    def neighbor(self, i, j, direction: Directions):
-        if self.periodic:
-            return self.get_periodic(i + direction.value[0], j + direction.value[1])
+    @property
+    def height(self):
+        return self.col_bounds[1] - self.col_bounds[0]
+
+    def neighbor(self, i, j, direction: Directions) -> Optional[Tuple[int, int]]:
+        delta_pos = i + direction.value[0], j + direction.value[1]
+        if self.in_bounds(*delta_pos):
+            return delta_pos
         else:
-            return i + direction.value[0], j + direction.value[1]
-
+            return self.boundary.map_pos(self, *delta_pos)
 
     def get_neighbor_dict(self, i: int, j: int) -> Dict[Directions, Tuple[int, int]]:
         return {
             d: pos
             for d, pos in
             ((d, self.neighbor(i, j, d)) for d in Directions)
-            if self.in_bounds(*pos)
+            if pos is not None
         }
 
     def in_bounds(self, i, j) -> bool:
-        return 0 <= i < self.width and 0 <= j < self.height
-
-    @property
-    def pos_iterator(self):
-        return itertools.product(range(self.width), range(self.height))
+        return self.row_bounds[0] <= i < self.row_bounds[1] and self.col_bounds[0] <= j < self.col_bounds[1]
 
     def min_entropy_pos(self):
-        idx, min_entropy = min(
-            ((i, entropy)
-             for i, entropy in enumerate(cell.entropy() for cell in self.cells.ravel())
+        pos, min_entropy = min(
+            ((pos, entropy)
+             for pos, entropy in ((pos, self.get_cell(*pos).entropy()) for pos in self.pos_iterator)
              if entropy > 0),
-            key=lambda tup: tup[1], default=(0, 0))
-        return np.unravel_index(idx, self.cells.shape), min_entropy
+            key=lambda tup: tup[1], default=((0, 0), 0))
+        return pos, min_entropy
 
     def print(self):
-        for i in range(self.width):
+        for i in self.row_iterator:
             print("".join([repr(self.get_cell(i, j)) for j in range(self.height)]))
 
     def print_entropy(self):
-        for i in range(self.width):
+        for i in self.row_iterator:
             print("".join(["{:>2}|".format(self.get_cell(i, j).entropy()) for j in range(self.height)]))
-
-    def synthesize_img(self):
-        return np.concatenate([
-            np.concatenate([c.get_pixels() for c in row], axis=1)
-            for row in self.cells], axis=0
-        )
