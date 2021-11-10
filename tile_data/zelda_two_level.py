@@ -1,11 +1,10 @@
 from enum import auto
 
-import numpy as np
 from matplotlib import pyplot as plt
 
 from directions import Directions
-from symmetry import Trivial, Group, Z4, D4, Z2
-from tile_data.connectors import ZeldaConnectors, Zelda2Connectors
+from symmetry.groups import Trivial, Group, Z4, Z2
+from tile_data.connectors import Zelda2Connectors
 from tiles import ProtoTileNames
 from tileset import TileSet
 

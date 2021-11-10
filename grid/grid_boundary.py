@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, Optional
 
-from cell import Cell
-from directions import Directions
+from grid.cell import Cell
 
 
 class GridBoundary(ABC):

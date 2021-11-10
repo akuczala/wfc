@@ -5,7 +5,7 @@ from typing import Optional
 from abc_enum import ABCEnumMeta
 from connectors import Connectors
 from directions import Directions
-from symmetry import GroupAction
+from symmetry.groups import GroupAction
 from utils import optional_map
 
 

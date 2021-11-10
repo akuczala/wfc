@@ -1,8 +1,8 @@
 from typing import Tuple
 
-from cell import Cell
-from grid import Grid
-from grid_boundary import SuperGridBoundary
+from grid.cell import Cell
+from grid.grid import Grid
+from grid.grid_boundary import SuperGridBoundary
 
 
 class SubGrid(Grid):

@@ -6,7 +6,8 @@ import numpy as np
 
 from connectors import Connectors
 from directions import Directions
-from symmetry import TileSymmetryGenerator, Group, GroupAction
+from symmetry.groups import Group, GroupAction
+from symmetry.tile_symmetry_generator import TileSymmetryGenerator
 from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames
 
 

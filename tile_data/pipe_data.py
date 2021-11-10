@@ -1,7 +1,7 @@
 import numpy as np
 
 from directions import Directions
-from symmetry import Trivial, Z2, Group, Z4_SQUARE
+from symmetry.groups import Trivial, Z2, Group, Z4_SQUARE
 from tile_data.connectors import PipeConnectors
 from tiles import ProtoTileNames
 from tileset import TileSet

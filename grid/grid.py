@@ -4,9 +4,9 @@ from typing import Dict, Tuple, Optional
 
 import numpy as np
 
-from cell import UncollapsedCell, Cell
+from grid.cell import UncollapsedCell, Cell
 from directions import Directions
-from grid_boundary import GridBoundary
+from grid.grid_boundary import GridBoundary
 from propagator import Propagator
 from tiles import TileNames, TileData
 

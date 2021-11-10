@@ -1,8 +1,8 @@
 import numpy as np
 
-from cell import UncollapsedCell, Cell
-from grid import Grid
-from grid_boundary import GridBoundary
+from grid.cell import UncollapsedCell, Cell
+from grid.grid import Grid
+from grid.grid_boundary import GridBoundary
 
 
 class GridArray(Grid):

@@ -1,14 +1,9 @@
-import itertools
-
-from cell import CollapsedCell, UncollapsedCell
-from grid import Grid
-from grid_array import GridArray
-from grid_boundary import PeriodicGridBoundary, ConstantGridBoundary
-from propagator import Propagator
-from sub_grid import SubGrid
-from symmetry import TileSymmetryGenerator, Group
+from grid.cell import CollapsedCell, UncollapsedCell
+from grid.grid_array import GridArray
+from grid.grid_boundary import ConstantGridBoundary
+from grid.sub_grid import SubGrid
+from symmetry.groups import Group
 from tile_data.directed_pipe_data import DirectedPipeTileSet
-from tile_data.pipe_data import PipeTileSet
 from matplotlib import pyplot as plt
 
 from tileset import TileSet
@@ -74,7 +69,6 @@ def collapse_animation(grid):
 
 
 def collapse_animation_2(update_grid, display_grid):
-    import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib.animation import FuncAnimation
 

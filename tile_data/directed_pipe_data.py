@@ -1,10 +1,7 @@
-from enum import auto
-
-import numpy as np
 from matplotlib import pyplot as plt
 
 from directions import Directions
-from symmetry import Trivial, Z4_SQUARE, D4_SQUARE
+from symmetry.groups import Trivial, Z4_SQUARE, D4_SQUARE
 from tile_data.connectors import DirectedPipeConnectors
 from tiles import ProtoTileNames
 from tileset import TileSet

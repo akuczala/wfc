@@ -1,7 +1,5 @@
 from typing import List, Tuple
 
-from directions import Directions
-
 
 class Propagator:
     def __init__(self, grid: "Grid"):
