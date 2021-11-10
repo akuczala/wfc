@@ -1,7 +1,7 @@
 import numpy as np
 
 from directions import Directions
-from symmetry import Trivial, Z2, Group, Z4
+from symmetry import Trivial, Z2, Group, Z4_SQUARE
 from tile_data.connectors import PipeConnectors
 from tiles import ProtoTileNames
 from tileset import TileSet
@@ -20,8 +20,8 @@ class PipeTileSet(TileSet):
         PipeProtoTileNames.EMPTY: Trivial(),
         PipeProtoTileNames.HORIZONTAL_PIPE: Z2(Group.swap_xy()),
         PipeProtoTileNames.CROSS_PIPE: Trivial(),
-        PipeProtoTileNames.ANGLE_PIPE: Z4(Group.rot90()),
-        PipeProtoTileNames.TERMINAL: Z4(Group.rot90()),
+        PipeProtoTileNames.ANGLE_PIPE: Z4_SQUARE,
+        PipeProtoTileNames.TERMINAL: Z4_SQUARE,
     }
     tile_constraints = {
         PipeProtoTileNames.EMPTY: {

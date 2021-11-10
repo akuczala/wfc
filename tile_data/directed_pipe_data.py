@@ -4,12 +4,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from directions import Directions
-from symmetry import Trivial, Group, Z4, D4
+from symmetry import Trivial, Z4_SQUARE, D4_SQUARE
 from tile_data.connectors import DirectedPipeConnectors
 from tiles import ProtoTileNames
 from tileset import TileSet
 
 ConnectorsEnum = DirectedPipeConnectors
+
 
 class DirectedProtoTileNames(ProtoTileNames):
     EMPTY = 'EMPTY'
@@ -52,13 +53,13 @@ class DirectedPipeTileSet(TileSet):
     proto_tile_name_enum = DirectedProtoTileNames
     tile_symmetries = {
         proto_tile_name_enum.EMPTY: Trivial(),
-        proto_tile_name_enum.PIPE: Z4(Group.rot90()),
-        proto_tile_name_enum.CROSS_PIPE: Z4(Group.rot90()), # todo check this symmetry
-        proto_tile_name_enum.ANGLE_PIPE: D4(Group.rot90(), Group.flip_x()),
-        proto_tile_name_enum.EMITTER: Z4(Group.rot90()),
-        proto_tile_name_enum.CONSUMER: Z4(Group.rot90()),
-        proto_tile_name_enum.SPLITTER: D4(Group.rot90(), Group.flip_x()),
-        proto_tile_name_enum.MERGER: D4(Group.rot90(), Group.flip_x()),
+        proto_tile_name_enum.PIPE: Z4_SQUARE,
+        proto_tile_name_enum.CROSS_PIPE: Z4_SQUARE,
+        proto_tile_name_enum.ANGLE_PIPE: D4_SQUARE,
+        proto_tile_name_enum.EMITTER: Z4_SQUARE,
+        proto_tile_name_enum.CONSUMER: Z4_SQUARE,
+        proto_tile_name_enum.SPLITTER: D4_SQUARE,
+        proto_tile_name_enum.MERGER: D4_SQUARE,
     }
     tile_constraints = {
         proto_tile_name_enum.EMPTY: {

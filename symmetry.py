@@ -108,6 +108,9 @@ class D4(Group):
         return Z4(s).get_elements().union({z * t for z in Z4(s).get_elements()})
 
 
+Z4_SQUARE = Z4(Group.rot90())
+D4_SQUARE = D4(Group.rot90(), Group.flip_x())
+
 class TileSymmetryGenerator:
     def __init__(self, symmetry: Group):
         self.symmetry = symmetry
@@ -122,14 +125,14 @@ class TileSymmetryGenerator:
 
     def _transform_tile(self, name_enum: ProtoTileNames, g_action: GroupAction, tile_data: ProtoTileData):
         return ProtoTileData(
-            name=name_enum(self._transform_tile_name(g_action, tile_data.name)),
+            name=name_enum(self.transform_tile_name(g_action, tile_data.name)),
             weight=tile_data.weight,  # todo consider dividing by # group elements?
             constraints=self._transform_constraints(g_action, tile_data.constraints),
             pixels=g_action.transform(tile_data.pixels)
         )
 
     @staticmethod
-    def _transform_tile_name(g_action: GroupAction, proto_tile_name: Enum) -> str:
+    def transform_tile_name(g_action: GroupAction, proto_tile_name: Enum) -> str:
         return f"{proto_tile_name.value}_{g_action.name}"
 
     def generate(self, name_enum: ProtoTileNames, tile_data: ProtoTileData):
@@ -141,5 +144,5 @@ class TileSymmetryGenerator:
         }
 
     def generate_tile_names(self, tile_data: ProtoTileData):
-        return {self._transform_tile_name(g, tile_data.name) for g in self.symmetry.get_elements()}
+        return {self.transform_tile_name(g, tile_data.name) for g in self.symmetry.get_elements()}
 

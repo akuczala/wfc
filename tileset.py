@@ -1,13 +1,13 @@
 from abc import ABC
 from enum import Enum
-from typing import Dict, Type
+from typing import Dict, Type, Set
 
 import numpy as np
 
 from connectors import Connectors
 from directions import Directions
-from symmetry import TileSymmetryGenerator, Group
-from tiles import ProtoTileData, ProtoTileNames, TileData
+from symmetry import TileSymmetryGenerator, Group, GroupAction
+from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames
 
 
 class TileSet(ABC):
@@ -66,3 +66,14 @@ class TileSet(ABC):
         for name, tile_data in self.proto_tile_data.items():
             output_tiles.update(sym_gens[name].generate(self.tile_name_enum, tile_data))
         return output_tiles
+
+    def get_tile_name(self, proto_tile_name: ProtoTileNames, g: GroupAction) -> TileNames:
+        return self.tile_name_enum(
+            TileSymmetryGenerator.transform_tile_name(g, proto_tile_name)
+        )
+
+    def get_tile_names(self, proto_tile_name: ProtoTileNames) -> Set[TileNames]:
+        return {
+            self.get_tile_name(proto_tile_name, g)
+            for g in self.tile_symmetries[proto_tile_name].get_elements()
+        }

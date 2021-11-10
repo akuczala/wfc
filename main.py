@@ -6,6 +6,7 @@ from grid_array import GridArray
 from grid_boundary import PeriodicGridBoundary, ConstantGridBoundary
 from propagator import Propagator
 from sub_grid import SubGrid
+from symmetry import TileSymmetryGenerator, Group
 from tile_data.directed_pipe_data import DirectedPipeTileSet
 from tile_data.pipe_data import PipeTileSet
 from matplotlib import pyplot as plt
@@ -17,14 +18,13 @@ def make_grid(tileset: TileSet):
 
     width, height = 20, 20
 
-    empty_tile = tileset.tile_name_enum('EMPTY_I')
-    z4_names = ['I','S','SS','SSS']
-    emitter_tiles = {tileset.tile_name_enum(f'EMITTER_{g}') for g in z4_names}
-    consumer_tiles = {tileset.tile_name_enum(f'CONSUMER_{g}') for g in z4_names}
+    empty_tile = tileset.get_tile_name(DirectedPipeTileSet.proto_tile_name_enum.EMPTY, Group.id())
+    emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
+    consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
 
     grid = GridArray(width, height,
                 boundary=ConstantGridBoundary(CollapsedCell(tileset.tile_data, empty_tile)),
-                #boundary=PeriodicGridBoundary(),
+                #boundary=PeriodicGridBoundary(), # todo: not working properly with sub grid
                 tile_data=tileset.tile_data,
                 init_cell_factory=lambda: CollapsedCell(tileset.tile_data, empty_tile)
                 #init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
@@ -52,8 +52,8 @@ def make_grid(tileset: TileSet):
 
 
 def place_emitter_consumer(tileset, grid):
-    emitter_tile = tileset.tile_name_enum('EMITTER_S')
-    consumer_tile = tileset.tile_name_enum('CONSUMER_I')
+    emitter_tile = next(iter(tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)))
+    consumer_tile = next(iter(tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)))
     for (i, j), tile in zip(
             [(5, 5), (15, 15), (6, 14), (13, 4)],
             [emitter_tile, consumer_tile, consumer_tile, consumer_tile]
