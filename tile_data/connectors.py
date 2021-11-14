@@ -3,10 +3,15 @@ from enum import Enum, auto
 from typing import Optional
 
 from abc_enum import ABCEnumMeta
-from connectors import Connectors
+from connectors import Connectors, ProtoConnectors
 from directions import Directions
 from symmetry.groups import GroupAction
 from utils import optional_map
+
+
+class PipeProtoConnectors(ProtoConnectors, Enum, metaclass=ABCEnumMeta):
+    HORIZONTAL = 'HORIZONTAL'
+    NONE = 'NONE'
 
 
 class PipeConnectors(Connectors, Enum, metaclass=ABCEnumMeta):

@@ -4,7 +4,7 @@ from typing import Dict, Type, Set
 
 import numpy as np
 
-from connectors import Connectors
+from connectors import Connectors, ProtoConnectors
 from directions import Directions
 from symmetry.groups import Group, GroupAction
 from symmetry.tile_symmetry_generator import TileSymmetryGenerator
@@ -13,11 +13,14 @@ from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames
 
 class TileSet(ABC):
     SYM_PROTO_TILE_NAMES_ENUM_NAME: str
+    SYM_PROTO_CONNECTOR_ENUM: str
     proto_tile_name_enum: Type[ProtoTileNames]
+    proto_connector_enum: Type[ProtoConnectors]
     tile_constraints: Dict[ProtoTileNames, Dict[Directions, Connectors]]
     tile_weights: Dict[ProtoTileNames, float]
     tile_imgs: Dict[ProtoTileNames, np.ndarray]
     tile_symmetries: Dict[ProtoTileNames, Group]
+    connector_symmetries: Dict[ProtoConnectors, Group]
 
     def __init__(self):
         self.proto_tile_data = self.build_proto_data()

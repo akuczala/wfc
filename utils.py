@@ -54,3 +54,15 @@ def transform_pixels(transform, pixels):
             for idx in range(n * n)]
     )
     return pixels.ravel()[transformed_index].reshape(pixels.shape)
+
+
+def signed_permutation_inverse_2x2(matrix: np.ndarray):
+    if matrix.shape != (2, 2):
+        raise ValueError(f"Matrix have shape (2,2); found {matrix.shape}")
+    det = matrix[0, 0] * matrix[1, 1] - matrix[1, 0] * matrix[0, 1]
+    if np.abs(det) != 1:
+        raise ValueError(f"Matrix must have determinant +/- 1; found {det}")
+    return np.array([
+        [matrix[1, 1], -matrix[0, 1]],
+        [-matrix[1, 0], matrix[0, 0]]
+    ], dtype=np.int) // det

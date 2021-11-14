@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from enum import Enum
-from utils import singledispatchmethod, transform_pixels
+from utils import singledispatchmethod, transform_pixels, signed_permutation_inverse_2x2
 from typing import Dict, Set
 
 import numpy as np
 
 from connectors import Connectors
 from directions import Directions
-from tiles import ProtoTileData, ProtoTileNames
 
 
 class GroupAction:
@@ -35,6 +33,9 @@ class GroupAction:
 
     def __mul__(self, other):
         return GroupAction(self.name + other.name, np.dot(self.matrix, other.matrix))
+
+    def inverse(self):
+        return GroupAction(f"({self.name})^(-1)", signed_permutation_inverse_2x2(self.matrix))
 
 
 class Group:
