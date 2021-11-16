@@ -7,20 +7,22 @@ from tile_data.directed_pipe_data import DirectedPipeTileSet
 from matplotlib import pyplot as plt
 
 from tile_data.pipe_data import PipeTileSet
+from tile_data.zelda_data import ZeldaTileSet
 from tileset import TileSet
 
 
 def make_generic_grid(tileset: TileSet):
     width, height = 20, 20
     grid = GridArray(width, height,
-                     boundary=PeriodicGridBoundary(),
+                     boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
                      tile_data=tileset.tile_data,
                      init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                      )
     collapse_animation_2(grid, grid)
 
 
-def make_directed_pipe_grid(tileset: TileSet):
+def make_directed_pipe_grid():
+    tileset = DirectedPipeTileSet()
     width, height = 20, 20
 
     empty_tile = tileset.get_tile_name(DirectedPipeTileSet.proto_tile_name_enum.EMPTY, Group.id())
@@ -58,7 +60,7 @@ def place_emitter_consumer(tileset, grid):
     consumer_tile = next(iter(tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)))
     for (i, j), tile in zip(
             [(5, 5), (15, 15), (6, 14), (13, 4)],
-            [emitter_tile, consumer_tile, consumer_tile, consumer_tile]
+            [emitter_tile, consumer_tile, emitter_tile, consumer_tile]
     ):
         grid.cells[i, j] = CollapsedCell(tileset.tile_data, tile)
         grid.collapse(i, j)
@@ -109,7 +111,6 @@ def pixel_test(tileset):
     plt.show()
 
 
-tileset = PipeTileSet()
-make_generic_grid(tileset)
-# pixel_test(tileset)
+#make_directed_pipe_grid()
+make_generic_grid(ZeldaTileSet())
 pass

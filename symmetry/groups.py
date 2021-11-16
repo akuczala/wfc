@@ -28,6 +28,12 @@ class GroupTargetMixin:
         pass
 
 
+class TrivialGroupTarget(GroupTargetMixin):
+
+    def transform(self, g_action: GroupAction) -> GroupTargetMixin:
+        return self
+
+
 @dataclass(frozen=True)
 class GroupAction:
     matrix_elements: Tuple[int, int, int, int]
@@ -63,9 +69,8 @@ class GroupAction:
             while g != Group.id():
                 yield g
                 g = g * a
+
         return iter(power_generator(self))
-
-
 
     def __eq__(self, other):
         return self.matrix_elements == other.matrix_elements
@@ -112,6 +117,7 @@ class GeneratedGroup(Group):
             for g_tuple in itertools.product(*(gen.power_iterator() for gen in self.generators))
         }
 
+
 @dataclass
 class Trivial(Group):
     def get_elements(self) -> Set[GroupAction]:
@@ -120,7 +126,6 @@ class Trivial(Group):
 
 Z4_SQUARE = GeneratedGroup({Group.rot90()})
 D4_SQUARE = GeneratedGroup({Group.rot90(), Group.flip_x()})
-
 
 # todo generalize
 _s = Group.rot90()

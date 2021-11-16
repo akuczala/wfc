@@ -13,7 +13,6 @@ from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames, TilePixels
 
 class TileSet(ABC):
     SYM_PROTO_TILE_NAMES_ENUM_NAME: str
-    SYM_PROTO_CONNECTOR_ENUM: str
     proto_tile_name_enum: Type[ProtoTileNames]
     proto_connector_enum: Type[ProtoConnectors]
     tile_constraints: Dict[ProtoTileNames, Dict[Directions, Connectors]]

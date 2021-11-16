@@ -5,9 +5,10 @@ from symmetry.coset import GroupTargetMixin
 from symmetry.groups import GroupAction
 
 
-class Connectors(ABC):
+class Connectors(GroupTargetMixin):
+
     @abstractmethod
-    def transform(self, g_action: GroupAction):
+    def transform(self, g_action: GroupAction) -> GroupTargetMixin:
         pass
 
 
@@ -16,7 +17,7 @@ class ProtoConnectors(ABC):
 
 
 @dataclass
-class GeneratedConnector(GroupTargetMixin):
+class GeneratedConnector(Connectors):
     proto_connector: ProtoConnectors
     g_target: GroupTargetMixin
 

@@ -1,12 +1,11 @@
 from matplotlib import pyplot as plt
 
 from directions import Directions
-from symmetry.groups import Trivial, Z4_SQUARE, D4_SQUARE
-from tile_data.connectors import DirectedPipeConnectors
+from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
+from symmetry.groups import Trivial, Z4_SQUARE, D4_SQUARE, GeneratedGroup, Group
+from tile_data.connectors import DirectedPipeProtoConnectors
 from tiles import ProtoTileNames, TilePixels
 from tileset import TileSet
-
-ConnectorsEnum = DirectedPipeConnectors
 
 
 class DirectedProtoTileNames(ProtoTileNames):
@@ -48,6 +47,7 @@ def generate_tile_pixels():
 class DirectedPipeTileSet(TileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymDirectedProtoTileNames"
     proto_tile_name_enum = DirectedProtoTileNames
+    proto_connector_enum = DirectedPipeProtoConnectors
     tile_symmetries = {
         proto_tile_name_enum.EMPTY: Trivial(),
         proto_tile_name_enum.PIPE: Z4_SQUARE,
@@ -58,54 +58,64 @@ class DirectedPipeTileSet(TileSet):
         proto_tile_name_enum.SPLITTER: D4_SQUARE,
         proto_tile_name_enum.MERGER: D4_SQUARE,
     }
+    connector_symmetries = {
+        proto_connector_enum.NONE: None,
+        proto_connector_enum.UP: GeneratedGroup({GeneratedGroup.flip_y()})
+    }
+    connector_dict = ConnectorSymmetryGenerator(connector_symmetries).make_base_connector_dict()
+    none = connector_dict[proto_connector_enum.NONE]
+    up = connector_dict[proto_connector_enum.UP]
+    left = up.transform(Group.rot90())
+    down = left.transform(Group.rot90())
+    right = down.transform(Group.rot90())
     tile_constraints = {
         proto_tile_name_enum.EMPTY: {
-            Directions.UP: ConnectorsEnum.NONE,
-            Directions.DOWN: ConnectorsEnum.NONE,
-            Directions.LEFT: ConnectorsEnum.NONE,
-            Directions.RIGHT: ConnectorsEnum.NONE,
+            Directions.UP: none,
+            Directions.DOWN: none,
+            Directions.LEFT: none,
+            Directions.RIGHT: none,
         },
         proto_tile_name_enum.PIPE: {
-            Directions.UP: ConnectorsEnum.NONE,
-            Directions.DOWN: ConnectorsEnum.NONE,
-            Directions.LEFT: ConnectorsEnum.RIGHT,
-            Directions.RIGHT: ConnectorsEnum.RIGHT,
+            Directions.UP: none,
+            Directions.DOWN: none,
+            Directions.LEFT: right,
+            Directions.RIGHT: right,
         },
         proto_tile_name_enum.CROSS_PIPE: {
-            Directions.UP: ConnectorsEnum.UP,
-            Directions.DOWN: ConnectorsEnum.UP,
-            Directions.LEFT: ConnectorsEnum.RIGHT,
-            Directions.RIGHT: ConnectorsEnum.RIGHT,
+            Directions.UP: up,
+            Directions.DOWN: up,
+            Directions.LEFT: right,
+            Directions.RIGHT: right,
         },
         proto_tile_name_enum.ANGLE_PIPE: {
-            Directions.UP: ConnectorsEnum.UP,
-            Directions.DOWN: ConnectorsEnum.NONE,
-            Directions.LEFT: ConnectorsEnum.NONE,
-            Directions.RIGHT: ConnectorsEnum.LEFT,
+            Directions.UP: up,
+            Directions.DOWN: none,
+            Directions.LEFT: none,
+            Directions.RIGHT: left,
         },
         proto_tile_name_enum.EMITTER: {
-            Directions.UP: ConnectorsEnum.UP,
-            Directions.DOWN: ConnectorsEnum.NONE,
-            Directions.LEFT: ConnectorsEnum.NONE,
-            Directions.RIGHT: ConnectorsEnum.NONE,
+            Directions.UP: up,
+            Directions.DOWN: none,
+            Directions.LEFT: none,
+            Directions.RIGHT: none,
         },
         proto_tile_name_enum.CONSUMER: {
-            Directions.UP: ConnectorsEnum.DOWN,
-            Directions.DOWN: ConnectorsEnum.NONE,
-            Directions.LEFT: ConnectorsEnum.NONE,
-            Directions.RIGHT: ConnectorsEnum.NONE,
+            Directions.UP: down,
+            Directions.DOWN: none,
+            Directions.LEFT: none,
+            Directions.RIGHT: none,
         },
         proto_tile_name_enum.SPLITTER: {
-            Directions.UP: ConnectorsEnum.NONE,
-            Directions.DOWN: ConnectorsEnum.DOWN,
-            Directions.LEFT: ConnectorsEnum.RIGHT,
-            Directions.RIGHT: ConnectorsEnum.RIGHT,
+            Directions.UP: none,
+            Directions.DOWN: down,
+            Directions.LEFT: right,
+            Directions.RIGHT: right,
         },
         proto_tile_name_enum.MERGER: {
-            Directions.UP: ConnectorsEnum.NONE,
-            Directions.DOWN: ConnectorsEnum.DOWN,
-            Directions.LEFT: ConnectorsEnum.RIGHT,
-            Directions.RIGHT: ConnectorsEnum.LEFT,
+            Directions.UP: none,
+            Directions.DOWN: down,
+            Directions.LEFT: right,
+            Directions.RIGHT: left,
         }
     }
     tile_weights = {
@@ -123,4 +133,3 @@ class DirectedPipeTileSet(TileSet):
 
     def __init__(self):
         super().__init__()
-

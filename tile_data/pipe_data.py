@@ -4,8 +4,8 @@ from connectors import GeneratedConnector
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
 from symmetry.coset import GroupCoset
-from symmetry.groups import Trivial, Group, Z4_SQUARE, D4_SQUARE, GeneratedGroup
-from tile_data.connectors import PipeConnectors, PipeProtoConnectors
+from symmetry.groups import Trivial, Group, Z4_SQUARE, D4_SQUARE, GeneratedGroup, TrivialGroupTarget
+from tile_data.connectors import PipeProtoConnectors
 from tiles import ProtoTileNames, TilePixels
 from tileset import TileSet
 
@@ -20,7 +20,6 @@ class PipeProtoTileNames(ProtoTileNames):
 
 class PipeTileSet(TileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymPipeProtoTileNames"
-    SYM_PROTO_CONNECTOR_ENUM = "SymPipeProtoConnectors"
     proto_tile_name_enum = PipeProtoTileNames
     proto_connector_enum = PipeProtoConnectors
     tile_symmetries = {
@@ -30,9 +29,12 @@ class PipeTileSet(TileSet):
         PipeProtoTileNames.ANGLE_PIPE: Z4_SQUARE,
         PipeProtoTileNames.TERMINAL: Z4_SQUARE,
     }
-    no_con = GeneratedConnector(proto_connector_enum.NONE, GroupCoset.from_group(D4_SQUARE))
-    stab_group = GroupCoset.from_group(GeneratedGroup({Group.flip_x(),Group.flip_y()}))
-    hz_con = GeneratedConnector(proto_connector_enum.HORIZONTAL, stab_group)
+    connector_symmetries = {
+        proto_connector_enum.NONE: None,
+        proto_connector_enum.HORIZONTAL: GeneratedGroup({Group.flip_x(),Group.flip_y()})
+    }
+    connector_dict = ConnectorSymmetryGenerator(connector_symmetries).make_base_connector_dict()
+    no_con, hz_con = connector_dict[proto_connector_enum.NONE], connector_dict[proto_connector_enum.HORIZONTAL]
     vt_con = hz_con.transform(Group.rot90())
     tile_constraints = {
         PipeProtoTileNames.EMPTY: {
