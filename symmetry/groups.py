@@ -1,63 +1,99 @@
+from __future__ import annotations
+
+import itertools
+from abc import abstractmethod
 from dataclasses import dataclass
-from utils import singledispatchmethod, transform_pixels, signed_permutation_inverse_2x2
-from typing import Dict, Set
+from functools import reduce
+
+from utils import signed_permutation_inverse_2x2
+from typing import Set, Tuple
 
 import numpy as np
 
-from connectors import Connectors
-from directions import Directions
+BASE_MATRIX_MAP = {
+    "I": (1, 0, 0, 1),
+    "Tx": (-1, 0, 0, 1),
+    "S": (0, -1, 1, 0),
+    "Ty": (1, 0, 0, -1),
+    "Txy": (0, 1, 1, 0)
+}
+MATRIX_NAMES = {
+    t: name for name, t in BASE_MATRIX_MAP.items()
+}
 
 
+class GroupTargetMixin:
+    @abstractmethod
+    def transform(self, g_action: GroupAction) -> GroupTargetMixin:
+        pass
+
+
+@dataclass(frozen=True)
 class GroupAction:
-    def __init__(self, name, matrix):
-        self.matrix = matrix
-        self.name = name
+    matrix_elements: Tuple[int, int, int, int]
 
-    @singledispatchmethod
-    def transform(self, x):
-        raise TypeError(f"GroupAction cannot transform {x} which is of type {type(x)}")
+    @classmethod
+    def from_matrix(cls, matrix: np.ndarray):
+        assert matrix.dtype == np.int
+        assert matrix.shape == (2, 2)
+        return GroupAction(
+            matrix_elements=tuple(x for x in matrix.ravel())
+        )
 
-    @transform.register
-    def _(self, x: Directions):
-        return Directions.arr_to_dir(np.dot(self.matrix, np.array(x.value)))
+    @property
+    def matrix(self) -> np.ndarray:
+        return np.array(self.matrix_elements).reshape(2, 2)
 
-    @transform.register
-    def _(self, x: Connectors):
-        return x.transform(self)
-
-    @transform.register
-    def _(self, x: np.ndarray):
-        if x.shape[0] != x.shape[1]:
-            raise TypeError(f"Cannot transform non-square pixel array; found shape {x.shape}")
-        return transform_pixels(self.matrix, x)
+    @property
+    def name(self):
+        return MATRIX_NAMES[self.matrix_elements]
 
     def __mul__(self, other):
-        return GroupAction(self.name + other.name, np.dot(self.matrix, other.matrix))
+        return GroupAction.from_matrix(np.dot(self.matrix, other.matrix))
 
     def inverse(self):
-        return GroupAction(f"({self.name})^(-1)", signed_permutation_inverse_2x2(self.matrix))
+        return GroupAction.from_matrix(signed_permutation_inverse_2x2(self.matrix))
+
+    # def calc_order(self, max_order: int=10) -> int:
+
+    def power_iterator(self):
+        def power_generator(a):
+            yield Group.id()
+            g = a
+            while g != Group.id():
+                yield g
+                g = g * a
+        return iter(power_generator(self))
+
+
+
+    def __eq__(self, other):
+        return self.matrix_elements == other.matrix_elements
+
+    def __hash__(self):
+        return self.matrix_elements.__hash__()
 
 
 class Group:
     @staticmethod
     def id():
-        return GroupAction("I", np.eye(2, dtype=np.int))
+        return GroupAction(BASE_MATRIX_MAP["I"])
 
     @staticmethod
     def rot90():
-        return GroupAction("S", np.array([[0, -1], [1, 0]]))
+        return GroupAction(BASE_MATRIX_MAP["S"])
 
     @staticmethod
     def flip_y():
-        return GroupAction("Ty", np.array([[1, 0], [0, -1]]))
+        return GroupAction(BASE_MATRIX_MAP["Ty"])
 
     @staticmethod
     def flip_x():
-        return GroupAction("Tx", np.array([[-1, 0], [0, 1]]))
+        return GroupAction(BASE_MATRIX_MAP["Tx"])
 
     @staticmethod
     def swap_xy():
-        return GroupAction("Txy", np.array([[0, 1], [1, 0]]))
+        return GroupAction(BASE_MATRIX_MAP["Txy"])
 
     def get_elements(self) -> Set[GroupAction]:
         pass
@@ -67,49 +103,27 @@ class Group:
 
 
 @dataclass
+class GeneratedGroup(Group):
+    generators: Set[GroupAction]
+
+    def get_elements(self) -> Set[GroupAction]:
+        return {
+            reduce(lambda g1, g2: g1 * g2, g_tuple)
+            for g_tuple in itertools.product(*(gen.power_iterator() for gen in self.generators))
+        }
+
+@dataclass
 class Trivial(Group):
     def get_elements(self) -> Set[GroupAction]:
         return {Group.id()}
 
-@dataclass
-class K4(Group):
-    t1: GroupAction
-    t2: GroupAction
 
-    def get_elements(self):
-        t1, t2 = self.t1, self.t2
-        return {Group.id(), t1, t2, t1 * t2}
+Z4_SQUARE = GeneratedGroup({Group.rot90()})
+D4_SQUARE = GeneratedGroup({Group.rot90(), Group.flip_x()})
 
 
-@dataclass
-class Z2(Group):
-    t: GroupAction
-
-    def get_elements(self):
-        return {Group.id(), self.t}
-
-
-@dataclass
-class Z4(Group):
-    s: GroupAction
-
-    def get_elements(self):
-        s = self.s
-        return {Group.id(), s, s * s, s * s * s}
-
-
-@dataclass
-class D4(Group):
-    s: GroupAction
-    t: GroupAction
-
-    def get_elements(self):
-        s = self.s
-        t = self.t
-        return Z4(s).get_elements().union({z * t for z in Z4(s).get_elements()})
-
-
-Z4_SQUARE = Z4(Group.rot90())
-D4_SQUARE = D4(Group.rot90(), Group.flip_x())
-
-
+# todo generalize
+_s = Group.rot90()
+_t = Group.flip_x()
+for (g1, g2) in ((_s, _s), (_s * _s, _s), (_s, _t), (_s * _s, _t), (_s * _s * _s, _t)):
+    MATRIX_NAMES[(g1 * g2).matrix_elements] = f"{g1.name}{g2.name}"

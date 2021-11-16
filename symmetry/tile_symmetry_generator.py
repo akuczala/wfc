@@ -15,7 +15,7 @@ class TileSymmetryGenerator:
     def _transform_constraints(g_action: GroupAction, constraints: Dict[Directions, Connectors]) -> Dict[
         Directions, Connectors]:
         return {
-            g_action.transform(direction): g_action.transform(connector)
+            direction.transform(g_action): connector.transform(g_action)
             for direction, connector in constraints.items()
         }
 
@@ -24,7 +24,7 @@ class TileSymmetryGenerator:
             name=name_enum(self.transform_tile_name(g_action, tile_data.name)),
             weight=tile_data.weight,  # todo consider dividing by # group elements?
             constraints=self._transform_constraints(g_action, tile_data.constraints),
-            pixels=g_action.transform(tile_data.pixels)
+            pixels=tile_data.pixels.transform(g_action)
         )
 
     @staticmethod

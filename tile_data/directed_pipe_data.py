@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from directions import Directions
 from symmetry.groups import Trivial, Z4_SQUARE, D4_SQUARE
 from tile_data.connectors import DirectedPipeConnectors
-from tiles import ProtoTileNames
+from tiles import ProtoTileNames, TilePixels
 from tileset import TileSet
 
 ConnectorsEnum = DirectedPipeConnectors
@@ -32,7 +32,7 @@ def generate_tile_pixels():
         return arr[i:end_tile(i), j:end_tile(j)]
 
     return {
-        name: extract_tile(s * i, s * j) for name, (i, j) in {
+        name: TilePixels(extract_tile(s * i, s * j)) for name, (i, j) in {
             DirectedProtoTileNames.PIPE: (0, 0),
             DirectedProtoTileNames.ANGLE_PIPE: (0, 1),
             DirectedProtoTileNames.CROSS_PIPE: (0, 2),

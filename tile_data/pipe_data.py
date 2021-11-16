@@ -3,9 +3,10 @@ import numpy as np
 from connectors import GeneratedConnector
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
-from symmetry.groups import Trivial, Z2, Group, Z4_SQUARE
+from symmetry.coset import GroupCoset
+from symmetry.groups import Trivial, Group, Z4_SQUARE, D4_SQUARE, GeneratedGroup
 from tile_data.connectors import PipeConnectors, PipeProtoConnectors
-from tiles import ProtoTileNames
+from tiles import ProtoTileNames, TilePixels
 from tileset import TileSet
 
 
@@ -24,7 +25,7 @@ class PipeTileSet(TileSet):
     proto_connector_enum = PipeProtoConnectors
     tile_symmetries = {
         PipeProtoTileNames.EMPTY: Trivial(),
-        PipeProtoTileNames.HORIZONTAL_PIPE: Z2(Group.swap_xy()),
+        PipeProtoTileNames.HORIZONTAL_PIPE: GeneratedGroup({Group.swap_xy()}),
         PipeProtoTileNames.CROSS_PIPE: Trivial(),
         PipeProtoTileNames.ANGLE_PIPE: Z4_SQUARE,
         PipeProtoTileNames.TERMINAL: Z4_SQUARE,
@@ -37,9 +38,14 @@ class PipeTileSet(TileSet):
     # no_con = connector_symmetries.get(proto_connector_enum.NONE, Group.id())
     # hz_con = connector_symmetries.get(proto_connector_enum.HORIZONTAL, Group.id())
     # vt_con = connector_symmetries.get(proto_connector_enum.HORIZONTAL, Group.swap_xy())
-    no_con = GeneratedConnector(proto_connector_enum.NONE, Group.id())
-    hz_con = GeneratedConnector(proto_connector_enum.HORIZONTAL, Group.id())
-    vt_con = GeneratedConnector(proto_connector_enum.HORIZONTAL, Group.swap_xy())
+    no_con = GeneratedConnector(proto_connector_enum.NONE, GroupCoset.from_group(D4_SQUARE))
+    # pipe_cons = {
+    #     GeneratedConnector(proto_connector_enum.HORIZONTAL, coset)
+    #     for coset in GroupCoset.partition_group(D4_SQUARE, Z2(Group.flip_x()))
+    # }
+    stab_group = GroupCoset.from_group(GeneratedGroup({Group.flip_x(),Group.flip_y()}))
+    hz_con = GeneratedConnector(proto_connector_enum.HORIZONTAL, stab_group)
+    vt_con = hz_con.transform(Group.rot90())
     tile_constraints = {
         PipeProtoTileNames.EMPTY: {
             Directions.UP: no_con,
@@ -79,7 +85,7 @@ class PipeTileSet(TileSet):
         PipeProtoTileNames.ANGLE_PIPE: 1,
         PipeProtoTileNames.TERMINAL: 0.0
     }
-    tile_imgs = {
+    tile_imgs = {k: TilePixels(v) for k,v in {
         PipeProtoTileNames.EMPTY: np.array([
             [0, 0, 0],
             [0, 0, 0],
@@ -105,7 +111,7 @@ class PipeTileSet(TileSet):
             [0, 1, 0],
             [0, 0, 0]
         ]),
-    }
+    }.items()}
 
     def __init__(self):
         super().__init__()

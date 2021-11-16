@@ -8,7 +8,7 @@ from connectors import Connectors, ProtoConnectors
 from directions import Directions
 from symmetry.groups import Group, GroupAction
 from symmetry.tile_symmetry_generator import TileSymmetryGenerator
-from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames
+from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames, TilePixels
 
 
 class TileSet(ABC):
@@ -18,7 +18,7 @@ class TileSet(ABC):
     proto_connector_enum: Type[ProtoConnectors]
     tile_constraints: Dict[ProtoTileNames, Dict[Directions, Connectors]]
     tile_weights: Dict[ProtoTileNames, float]
-    tile_imgs: Dict[ProtoTileNames, np.ndarray]
+    tile_imgs: Dict[ProtoTileNames, TilePixels]
     tile_symmetries: Dict[ProtoTileNames, Group]
     connector_symmetries: Dict[ProtoConnectors, Group]
 

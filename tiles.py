@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Set
@@ -6,6 +7,8 @@ import numpy as np
 
 from connectors import Connectors
 from directions import Directions
+from symmetry.groups import GroupTargetMixin, GroupAction
+from utils import transform_pixels
 
 
 class ProtoTileNames(Enum):
@@ -15,11 +18,19 @@ class ProtoTileNames(Enum):
 
 
 @dataclass
+class TilePixels(GroupTargetMixin):
+    array: np.ndarray
+
+    def transform(self, g_action: GroupAction) -> TilePixels:
+        return transform_pixels(g_action.matrix, self.array)
+
+
+@dataclass
 class ProtoTileData:
     constraints: Dict[Directions, Connectors]
     weight: float
     name: ProtoTileNames
-    pixels: np.array
+    pixels: TilePixels
 
 
 def random_tile(tile_data, tiles):

@@ -58,7 +58,7 @@ class DirectedPipeConnectors(Connectors, Enum, metaclass=ABCEnumMeta):
 
     def transform(self, g_action: GroupAction) -> Connectors:
         return self.from_direction(
-            optional_map(g_action.transform, self.to_direction())
+            optional_map(lambda d: d.transform(g_action), self.to_direction())
         )
 
 class ZeldaConnectors(Connectors, Enum, metaclass=ABCEnumMeta):
