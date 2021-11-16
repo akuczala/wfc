@@ -30,19 +30,7 @@ class PipeTileSet(TileSet):
         PipeProtoTileNames.ANGLE_PIPE: Z4_SQUARE,
         PipeProtoTileNames.TERMINAL: Z4_SQUARE,
     }
-    # connector_symmetries = ConnectorSymmetryGenerator({
-    #     PipeProtoConnectors.NONE: Trivial(),
-    #     PipeProtoConnectors.HORIZONTAL: Z2(Group.swap_xy())
-    # })
-    # connector_enum = connector_symmetries.connector_enum
-    # no_con = connector_symmetries.get(proto_connector_enum.NONE, Group.id())
-    # hz_con = connector_symmetries.get(proto_connector_enum.HORIZONTAL, Group.id())
-    # vt_con = connector_symmetries.get(proto_connector_enum.HORIZONTAL, Group.swap_xy())
     no_con = GeneratedConnector(proto_connector_enum.NONE, GroupCoset.from_group(D4_SQUARE))
-    # pipe_cons = {
-    #     GeneratedConnector(proto_connector_enum.HORIZONTAL, coset)
-    #     for coset in GroupCoset.partition_group(D4_SQUARE, Z2(Group.flip_x()))
-    # }
     stab_group = GroupCoset.from_group(GeneratedGroup({Group.flip_x(),Group.flip_y()}))
     hz_con = GeneratedConnector(proto_connector_enum.HORIZONTAL, stab_group)
     vt_con = hz_con.transform(Group.rot90())
@@ -83,9 +71,9 @@ class PipeTileSet(TileSet):
         PipeProtoTileNames.HORIZONTAL_PIPE: 3,
         PipeProtoTileNames.CROSS_PIPE: 0.5,
         PipeProtoTileNames.ANGLE_PIPE: 1,
-        PipeProtoTileNames.TERMINAL: 0.0
+        PipeProtoTileNames.TERMINAL: 0.01
     }
-    tile_imgs = {k: TilePixels(v) for k,v in {
+    tile_imgs = {k: TilePixels(v) for k, v in {
         PipeProtoTileNames.EMPTY: np.array([
             [0, 0, 0],
             [0, 0, 0],
