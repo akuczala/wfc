@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import reduce
 
 from utils import signed_permutation_inverse_2x2
-from typing import Set, Tuple
+from typing import Set, Tuple, Dict
 
 import numpy as np
 
@@ -27,11 +27,27 @@ class GroupTargetMixin:
     def transform(self, g_action: GroupAction) -> GroupTargetMixin:
         pass
 
+    def generate_from_group(self, group: Group) -> Dict[GroupAction, GroupTargetMixin]:
+        # cannot get unique members with a dict/set since we aren't guaranteed to be hashable (and doing so is annoying)
+        # must check explicitly
+        out = {}
+        for g in group.get_elements():
+            target = self.transform(g)
+            if target not in out.values():
+                out[g] = target
+        return out
+
 
 class TrivialGroupTarget(GroupTargetMixin):
 
     def transform(self, g_action: GroupAction) -> GroupTargetMixin:
         return self
+
+    def __eq__(self, other):
+        return isinstance(other, TrivialGroupTarget)
+
+    def __hash__(self):
+        return hash(TrivialGroupTarget)
 
 
 @dataclass(frozen=True)

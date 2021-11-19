@@ -1,20 +1,27 @@
+from __future__ import annotations
 from enum import Enum
 from typing import Dict, Optional
 
-from connectors import Connectors
-from directions import Directions
 from symmetry.coset import GroupCoset
-from symmetry.groups import GroupAction, Group, D4_SQUARE
-from tiles import ProtoTileNames, ProtoTileData
+from symmetry.groups import GroupAction, Group, D4_SQUARE, GroupTargetMixin
+from tiles import ProtoTileNames, ProtoTileData, TileConstraints
 
 TILE_TRANSFORMATION_GROUP = D4_SQUARE
 
 
 class TileSymmetryGenerator:
-    def __init__(self, symmetry: Optional[Group]):
+    def __init__(self, action_dict: Dict[GroupAction, GroupTargetMixin]):
+        self.action_dict = action_dict
+
+    @classmethod
+    def from_symmetries(cls, symmetry: Optional[Group]) -> TileSymmetryGenerator:
         if symmetry is None:
             symmetry = TILE_TRANSFORMATION_GROUP
-        self.coset_dict = GroupCoset.partition_group_dict(TILE_TRANSFORMATION_GROUP, symmetry)
+        return TileSymmetryGenerator(GroupCoset.partition_group_dict(TILE_TRANSFORMATION_GROUP, symmetry))
+
+    @classmethod
+    def from_constraint_symmetries(cls, constraints: TileConstraints):
+        return TileSymmetryGenerator(constraints.generate_from_group(TILE_TRANSFORMATION_GROUP))
 
     def _transform_tile(self, name_enum: ProtoTileNames, g_action: GroupAction, tile_data: ProtoTileData):
         return ProtoTileData(
@@ -41,4 +48,4 @@ class TileSymmetryGenerator:
 
     @property
     def transformations(self):
-        return self.coset_dict.keys()
+        return self.action_dict.keys()

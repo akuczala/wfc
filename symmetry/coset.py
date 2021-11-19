@@ -20,7 +20,7 @@ class GroupCoset(GroupTargetMixin, frozenset):
     @classmethod
     def partition_group_dict(cls, group: Group, stabilizer_group: Group) -> Dict[GroupAction, GroupCoset]:
         stabilizer_coset = cls.from_group(stabilizer_group)
-        inverted = {stabilizer_coset.left_action(g): g for g in group.get_elements()}
+        inverted = {stabilizer_coset.transform(g): g for g in group.get_elements()}
         return {g: coset for coset, g in inverted.items()}
 
     def left_action(self, g: GroupAction):

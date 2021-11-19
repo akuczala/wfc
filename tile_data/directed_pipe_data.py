@@ -1,10 +1,13 @@
+from typing import Dict
+
 from matplotlib import pyplot as plt
 
+from connectors import ProtoConnectors
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
 from symmetry.groups import Trivial, Z4_SQUARE, D4_SQUARE, GeneratedGroup, Group
 from tile_data.connectors import DirectedPipeProtoConnectors
-from tiles import ProtoTileNames, TilePixels
+from tiles import ProtoTileNames, TilePixels, TileConstraints
 from tileset import TileSet
 
 
@@ -48,88 +51,105 @@ class DirectedPipeTileSet(TileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymDirectedProtoTileNames"
     proto_tile_name_enum = DirectedProtoTileNames
     proto_connector_enum = DirectedPipeProtoConnectors
-    tile_symmetries = {
-        proto_tile_name_enum.EMPTY: None,
-        proto_tile_name_enum.PIPE: GeneratedGroup({Group.flip_x()}),
-        proto_tile_name_enum.CROSS_PIPE: GeneratedGroup({Group.swap_xy()}),
-        proto_tile_name_enum.ANGLE_PIPE: Trivial(),
-        proto_tile_name_enum.EMITTER: GeneratedGroup({Group.flip_y()}),
-        proto_tile_name_enum.CONSUMER: GeneratedGroup({Group.flip_y()}),
-        proto_tile_name_enum.SPLITTER: Trivial(),
-        proto_tile_name_enum.MERGER: Trivial(),
-    }
-    connector_symmetries = {
-        proto_connector_enum.NONE: None,
-        proto_connector_enum.UP: GeneratedGroup({Group.flip_y()})
-    }
-    connector_dict = ConnectorSymmetryGenerator(connector_symmetries).make_base_connector_dict()
-    none = connector_dict[proto_connector_enum.NONE]
-    up = connector_dict[proto_connector_enum.UP]
-    left = up.transform(Group.rot90())
-    down = left.transform(Group.rot90())
-    right = down.transform(Group.rot90())
-    tile_constraints = {
-        proto_tile_name_enum.EMPTY: {
-            Directions.UP: none,
-            Directions.DOWN: none,
-            Directions.LEFT: none,
-            Directions.RIGHT: none,
-        },
-        proto_tile_name_enum.PIPE: {
-            Directions.UP: none,
-            Directions.DOWN: none,
-            Directions.LEFT: right,
-            Directions.RIGHT: right,
-        },
-        proto_tile_name_enum.CROSS_PIPE: {
-            Directions.UP: up,
-            Directions.DOWN: up,
-            Directions.LEFT: right,
-            Directions.RIGHT: right,
-        },
-        proto_tile_name_enum.ANGLE_PIPE: {
-            Directions.UP: up,
-            Directions.DOWN: none,
-            Directions.LEFT: none,
-            Directions.RIGHT: left,
-        },
-        proto_tile_name_enum.EMITTER: {
-            Directions.UP: up,
-            Directions.DOWN: none,
-            Directions.LEFT: none,
-            Directions.RIGHT: none,
-        },
-        proto_tile_name_enum.CONSUMER: {
-            Directions.UP: down,
-            Directions.DOWN: none,
-            Directions.LEFT: none,
-            Directions.RIGHT: none,
-        },
-        proto_tile_name_enum.SPLITTER: {
-            Directions.UP: none,
-            Directions.DOWN: down,
-            Directions.LEFT: right,
-            Directions.RIGHT: right,
-        },
-        proto_tile_name_enum.MERGER: {
-            Directions.UP: none,
-            Directions.DOWN: down,
-            Directions.LEFT: right,
-            Directions.RIGHT: left,
-        }
-    }
-    tile_weights = {
-        proto_tile_name_enum.EMPTY: 1000,
-        proto_tile_name_enum.PIPE: 3,
-        proto_tile_name_enum.CROSS_PIPE: 0.1,
-        proto_tile_name_enum.ANGLE_PIPE: 0.5,
-        proto_tile_name_enum.EMITTER: 0.0,
-        proto_tile_name_enum.CONSUMER: 0.0,
-        proto_tile_name_enum.SPLITTER: 0.001,
-        proto_tile_name_enum.MERGER: 0.001,
 
-    }
-    tile_imgs = generate_tile_pixels()
+    @property
+    def tile_weights(self) -> Dict[ProtoTileNames, float]:
+        return {
+            self.proto_tile_name_enum.EMPTY: 100,
+            self.proto_tile_name_enum.PIPE: 3,
+            self.proto_tile_name_enum.CROSS_PIPE: 0.1,
+            self.proto_tile_name_enum.ANGLE_PIPE: 0.5,
+            self.proto_tile_name_enum.EMITTER: 0.0,
+            self.proto_tile_name_enum.CONSUMER: 0.0,
+            self.proto_tile_name_enum.SPLITTER: 0.001,
+            self.proto_tile_name_enum.MERGER: 0.001,
+        }
+
+    @property
+    def tile_imgs(self) -> Dict[ProtoTileNames, TilePixels]:
+        return generate_tile_pixels()
+
+    @property
+    def tile_symmetries(self) -> Dict[ProtoTileNames, Group]:
+        return {
+            # self.proto_tile_name_enum.EMPTY: None,
+            # self.proto_tile_name_enum.PIPE: GeneratedGroup({Group.flip_x()}),
+            # self.proto_tile_name_enum.CROSS_PIPE: GeneratedGroup({Group.swap_xy()}),
+            # self.proto_tile_name_enum.ANGLE_PIPE: Trivial(),
+            # self.proto_tile_name_enum.EMITTER: GeneratedGroup({Group.flip_y()}),
+            # self.proto_tile_name_enum.CONSUMER: GeneratedGroup({Group.flip_y()}),
+            # self.proto_tile_name_enum.SPLITTER: Trivial(),
+            # self.proto_tile_name_enum.MERGER: Trivial(),
+        }
+
+    def get_symmetry_generators(self):
+        return self.symmetry_generators_from_constraints()
+
+    @property
+    def connector_symmetries(self) -> Dict[ProtoConnectors, Group]:
+        return {
+            self.proto_connector_enum.NONE: None,
+            self.proto_connector_enum.UP: GeneratedGroup({Group.flip_y()})
+        }
+
+    @property
+    def tile_constraints(self) -> Dict[ProtoTileNames, TileConstraints]:
+        connector_dict = ConnectorSymmetryGenerator(self.connector_symmetries).make_base_connector_dict()
+        none = connector_dict[self.proto_connector_enum.NONE]
+        up = connector_dict[self.proto_connector_enum.UP]
+        left = up.transform(Group.rot90())
+        down = left.transform(Group.rot90())
+        right = down.transform(Group.rot90())
+        return {
+            self.proto_tile_name_enum.EMPTY: TileConstraints.make_constraints(
+                up=none,
+                down=none,
+                left=none,
+                right=none,
+            ),
+            self.proto_tile_name_enum.PIPE: TileConstraints.make_constraints(
+                up=none,
+                down=none,
+                left=right,
+                right=right,
+            ),
+            self.proto_tile_name_enum.CROSS_PIPE: TileConstraints.make_constraints(
+                up=up,
+                down=up,
+                left=right,
+                right=right,
+            ),
+            self.proto_tile_name_enum.ANGLE_PIPE: TileConstraints.make_constraints(
+                up=up,
+                down=none,
+                left=none,
+                right=left,
+            ),
+            self.proto_tile_name_enum.EMITTER: TileConstraints.make_constraints(
+                up=up,
+                down=none,
+                left=none,
+                right=none,
+            ),
+            self.proto_tile_name_enum.CONSUMER: TileConstraints.make_constraints(
+                up=down,
+                down=none,
+                left=none,
+                right=none,
+            ),
+            self.proto_tile_name_enum.SPLITTER: TileConstraints.make_constraints(
+                up=none,
+                down=down,
+                left=right,
+                right=right,
+            ),
+            self.proto_tile_name_enum.MERGER: TileConstraints.make_constraints(
+                up=none,
+                down=down,
+                left=right,
+                right=left,
+            )
+        }
 
     def __init__(self):
         super().__init__()

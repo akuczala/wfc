@@ -3,6 +3,7 @@ from grid.grid_array import GridArray
 from grid.grid_boundary import ConstantGridBoundary, PeriodicGridBoundary
 from grid.sub_grid import SubGrid
 from symmetry.groups import Group
+from tile_data.connectors import PipeProtoConnectors
 from tile_data.directed_pipe_data import DirectedPipeTileSet
 from matplotlib import pyplot as plt
 
@@ -113,5 +114,6 @@ def pixel_test(tileset):
 
 
 #make_directed_pipe_grid()
-make_generic_grid(PipeTileSet())
+make_generic_grid(DirectedPipeTileSet())
+#constraint_symmetry()
 pass
