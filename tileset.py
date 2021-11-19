@@ -8,14 +8,14 @@ from connectors import Connectors, ProtoConnectors
 from directions import Directions
 from symmetry.groups import Group, GroupAction
 from symmetry.tile_symmetry_generator import TileSymmetryGenerator
-from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames, TilePixels
+from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames, TilePixels, TileConstraints
 
 
 class TileSet(ABC):
     SYM_PROTO_TILE_NAMES_ENUM_NAME: str
     proto_tile_name_enum: Type[ProtoTileNames]
     proto_connector_enum: Type[ProtoConnectors]
-    tile_constraints: Dict[ProtoTileNames, Dict[Directions, Connectors]]
+    tile_constraints: Dict[ProtoTileNames, TileConstraints]
     tile_weights: Dict[ProtoTileNames, float]
     tile_imgs: Dict[ProtoTileNames, TilePixels]
     tile_symmetries: Dict[ProtoTileNames, Group]
@@ -53,21 +53,24 @@ class TileSet(ABC):
         }
 
     def get_constraint_compatible_tiles(self, this_tile: ProtoTileNames, direction: Directions):
-        connector = self.sym_proto_tile_data[this_tile].constraints[direction]
+        connector = self.sym_proto_tile_data[this_tile].constraints.get(direction)
         return {
             tile for tile in self.tile_name_enum
-            if self.sym_proto_tile_data[tile].constraints[direction.reverse()] == connector
+            if self.sym_proto_tile_data[tile].constraints.get(direction.reverse()) == connector
         }
 
     def symmetry_build(self):
+        self.sym_gens = {
+            name: TileSymmetryGenerator(self.tile_symmetries[name])
+            for name in self.proto_tile_name_enum
+        }
         new_tile_names = set()
-        sym_gens = {name: TileSymmetryGenerator(self.tile_symmetries[name]) for name in self.proto_tile_name_enum}
-        for name in sym_gens.keys():
-            new_tile_names = new_tile_names.union(sym_gens[name].generate_tile_names(self.proto_tile_data[name]))
+        for name in self.sym_gens.keys():
+            new_tile_names = new_tile_names.union(self.sym_gens[name].generate_tile_names(name))
         self.tile_name_enum = Enum(self.SYM_PROTO_TILE_NAMES_ENUM_NAME, {name: name for name in new_tile_names})
         output_tiles = {}
         for name, tile_data in self.proto_tile_data.items():
-            output_tiles.update(sym_gens[name].generate(self.tile_name_enum, tile_data))
+            output_tiles.update(self.sym_gens[name].generate(self.tile_name_enum, tile_data))
         return output_tiles
 
     def get_tile_name(self, proto_tile_name: ProtoTileNames, g: GroupAction) -> TileNames:
@@ -78,5 +81,5 @@ class TileSet(ABC):
     def get_tile_names(self, proto_tile_name: ProtoTileNames) -> Set[TileNames]:
         return {
             self.get_tile_name(proto_tile_name, g)
-            for g in self.tile_symmetries[proto_tile_name].get_elements()
+            for g in TileSymmetryGenerator(self.tile_symmetries[proto_tile_name]).transformations
         }

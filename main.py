@@ -25,6 +25,7 @@ def make_directed_pipe_grid():
     tileset = DirectedPipeTileSet()
     width, height = 20, 20
 
+    # todo fix get tile name
     empty_tile = tileset.get_tile_name(DirectedPipeTileSet.proto_tile_name_enum.EMPTY, Group.id())
     emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
     consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
@@ -112,5 +113,5 @@ def pixel_test(tileset):
 
 
 #make_directed_pipe_grid()
-make_generic_grid(ZeldaTileSet())
+make_generic_grid(PipeTileSet())
 pass

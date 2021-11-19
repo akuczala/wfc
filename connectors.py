@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -8,7 +9,7 @@ from symmetry.groups import GroupAction
 class Connectors(GroupTargetMixin):
 
     @abstractmethod
-    def transform(self, g_action: GroupAction) -> GroupTargetMixin:
+    def transform(self, g_action: GroupAction) -> Connectors:
         pass
 
 

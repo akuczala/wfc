@@ -49,18 +49,18 @@ class DirectedPipeTileSet(TileSet):
     proto_tile_name_enum = DirectedProtoTileNames
     proto_connector_enum = DirectedPipeProtoConnectors
     tile_symmetries = {
-        proto_tile_name_enum.EMPTY: Trivial(),
-        proto_tile_name_enum.PIPE: Z4_SQUARE,
-        proto_tile_name_enum.CROSS_PIPE: Z4_SQUARE,
-        proto_tile_name_enum.ANGLE_PIPE: D4_SQUARE,
-        proto_tile_name_enum.EMITTER: Z4_SQUARE,
-        proto_tile_name_enum.CONSUMER: Z4_SQUARE,
-        proto_tile_name_enum.SPLITTER: D4_SQUARE,
-        proto_tile_name_enum.MERGER: D4_SQUARE,
+        proto_tile_name_enum.EMPTY: None,
+        proto_tile_name_enum.PIPE: GeneratedGroup({Group.flip_x()}),
+        proto_tile_name_enum.CROSS_PIPE: GeneratedGroup({Group.swap_xy()}),
+        proto_tile_name_enum.ANGLE_PIPE: Trivial(),
+        proto_tile_name_enum.EMITTER: GeneratedGroup({Group.flip_y()}),
+        proto_tile_name_enum.CONSUMER: GeneratedGroup({Group.flip_y()}),
+        proto_tile_name_enum.SPLITTER: Trivial(),
+        proto_tile_name_enum.MERGER: Trivial(),
     }
     connector_symmetries = {
         proto_connector_enum.NONE: None,
-        proto_connector_enum.UP: GeneratedGroup({GeneratedGroup.flip_y()})
+        proto_connector_enum.UP: GeneratedGroup({Group.flip_y()})
     }
     connector_dict = ConnectorSymmetryGenerator(connector_symmetries).make_base_connector_dict()
     none = connector_dict[proto_connector_enum.NONE]

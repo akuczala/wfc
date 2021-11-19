@@ -25,12 +25,51 @@ class TilePixels(GroupTargetMixin):
         return transform_pixels(g_action.matrix, self.array)
 
 
+@dataclass(frozen=True)
+class TileConstraints(GroupTargetMixin):
+    constraint_dict: Dict[Directions, Connectors]
+
+    def transform(self, g_action: GroupAction) -> TileConstraints:
+        return TileConstraints(
+            constraint_dict={
+                direction.transform(g_action): connector.transform(g_action)
+                for direction, connector in self.constraint_dict.items()
+            }
+        )
+
+    def get(self, direction: Directions) -> Connectors:
+        return self.constraint_dict[direction]
+
+    @staticmethod
+    def make_constraints(up: Connectors, down: Connectors, left: Connectors, right: Connectors) -> TileConstraints:
+        return TileConstraints(constraint_dict={
+            Directions.UP: up,
+            Directions.DOWN: down,
+            Directions.LEFT: left,
+            Directions.RIGHT: right
+        })
+
+
 @dataclass
 class ProtoTileData:
-    constraints: Dict[Directions, Connectors]
+    constraints: TileConstraints
     weight: float
     name: ProtoTileNames
     pixels: TilePixels
+
+
+@dataclass
+class SymmetryGeneratedProtoTileData(ProtoTileData, GroupTargetMixin):
+    g_target: GroupTargetMixin
+
+    def transform(self, g_action: GroupAction) -> GroupTargetMixin:
+        return SymmetryGeneratedProtoTileData(
+            constraints=self.constraints.transform(g_action),
+            weight=self.weight,
+            name=self.name,
+            pixels=self.pixels.transform(g_action),
+            g_target=self.g_target.transform(g_action)
+        )
 
 
 def random_tile(tile_data, tiles):
@@ -43,10 +82,6 @@ def random_tile(tile_data, tiles):
 class TileNames:
     pass
 
-# not allowed to extend nonempty enumerations
-# class PipeTileNames(TileNames, PipeProtoTileNames):
-#     pass
-
 
 @dataclass
 class TileData:
@@ -54,5 +89,4 @@ class TileData:
     weight: float
     compatible_tiles: Dict[Directions, Set[TileNames]]
     pixels: Set[TileNames]
-
 
