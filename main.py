@@ -15,16 +15,17 @@ from tileset import TileSet
 
 def make_generic_grid(tileset: TileSet):
     width, height = 20, 20
-    grid = GridArray(width, height,
-                     boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
+    grid = GridArray((width, height),
+                     #boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
+                     boundary=PeriodicGridBoundary(),
                      tile_data=tileset.tile_data,
                      init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                      )
-    #collapse_animation_2(grid, grid)
+    collapse_animation_2(grid, grid)
 
-    grid.scanline_collapse()
-    plt.imshow(grid.synthesize_img(), cmap='gray')
-    plt.show()
+    # grid.scanline_collapse()
+    # plt.imshow(grid.synthesize_img(), cmap='gray')
+    # plt.show()
 
 
 def make_directed_pipe_grid():
@@ -36,7 +37,7 @@ def make_directed_pipe_grid():
     emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
     consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
 
-    grid = GridArray(width, height,
+    grid = GridArray((width, height),
                      boundary=ConstantGridBoundary(CollapsedCell(tileset.tile_data, empty_tile)),
                      # boundary=PeriodicGridBoundary(), # todo: not working properly with sub grid
                      tile_data=tileset.tile_data,
@@ -96,12 +97,12 @@ def collapse_animation_2(update_grid, display_grid):
 
     def update(*args):
         pos = next(pos_iter)
-        update_grid.propagated_collapse(*pos)
+        update_grid.propagated_collapse(pos)
         img.set_array(display_grid.synthesize_img())
         return [img]
 
     try:
-        ani = FuncAnimation(fig, update, frames=update_grid.width * update_grid.height, interval=10, blit=True,
+        ani = FuncAnimation(fig, update, frames=update_grid.shape[0] * update_grid.shape[1], interval=10, blit=True,
                             repeat=False)
         plt.show()
     except StopIteration:
@@ -119,6 +120,6 @@ def pixel_test(tileset):
 
 
 #make_directed_pipe_grid()
-make_generic_grid(Zelda2TileSet())
+make_generic_grid(DirectedPipeTileSet())
 #constraint_symmetry()
 pass
