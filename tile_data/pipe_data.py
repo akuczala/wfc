@@ -82,9 +82,9 @@ class PipeTileSet(TileSet):
     @property
     def tile_weights(self):
         return {
-            PipeProtoTileNames.EMPTY: 80,
+            PipeProtoTileNames.EMPTY: 3,
             PipeProtoTileNames.HORIZONTAL_PIPE: 3,
-            PipeProtoTileNames.CROSS_PIPE: 0.5,
+            PipeProtoTileNames.CROSS_PIPE: 1,
             PipeProtoTileNames.ANGLE_PIPE: 1,
             PipeProtoTileNames.TERMINAL: 0.01
         }

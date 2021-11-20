@@ -1,14 +1,16 @@
 from enum import auto
+from typing import Dict
 
 from matplotlib import pyplot as plt
 
+from connectors import ProtoConnectors
 from directions import Directions
-from symmetry.groups import Trivial, Group, Z4, Z2
-from tile_data.connectors import Zelda2Connectors
-from tiles import ProtoTileNames
+from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
+from symmetry.groups import Trivial, Group, Z4_SQUARE, GeneratedGroup
+from tile_data.connectors import ZeldaProtoConnectors, Zelda2ProtoConnectors
+from tiles import ProtoTileNames, TilePixels, TileConstraints
 from tileset import TileSet
 
-ConnectorsEnum = Zelda2Connectors
 
 class Zelda2ProtoTileNames(ProtoTileNames):
     LOWER = auto()
@@ -34,7 +36,7 @@ def generate_tile_pixels():
         return arr[i:end_tile(i), j:end_tile(j)]
 
     return {
-        name: extract_tile(s * i, s * j) for name, (i, j) in {
+        name: TilePixels(extract_tile(s * i, s * j)) for name, (i, j) in {
             Zelda2ProtoTileNames.UPPER: (0, 0),
             Zelda2ProtoTileNames.LOWER: (2, 2),
             Zelda2ProtoTileNames.WALL_CORNER: (0, 1),
@@ -49,92 +51,111 @@ def generate_tile_pixels():
 
 
 class Zelda2TileSet(TileSet):
-    SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymZeldaProtoTileNames"
+    SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymZelda2ProtoTileNames"
     proto_tile_name_enum = Zelda2ProtoTileNames
-    z4_rot = Z4(Group.rot90())
-    z2_swap = Z2(Group.swap_xy())
-    z2_y = Z2(Group.flip_y())
-    tile_symmetries = {
-        proto_tile_name_enum.UPPER: Trivial(),
-        proto_tile_name_enum.LOWER: Trivial(),
-        proto_tile_name_enum.WALL: z4_rot,
-        proto_tile_name_enum.WALL_CORNER: z4_rot,
-        proto_tile_name_enum.STAIRS: z4_rot,
-        proto_tile_name_enum.WALL_BRIDGE: z4_rot,
-        proto_tile_name_enum.FLOOR_BRIDGE: z2_swap,
-        proto_tile_name_enum.BRIDGE_CORNER_COLUMN: z2_y,
-        proto_tile_name_enum.BRIDGE_CORNER: z2_y,
-    }
-    tile_constraints = {
-        proto_tile_name_enum.UPPER: {
-            Directions.UP: ConnectorsEnum.UPPER,
-            Directions.DOWN: ConnectorsEnum.UPPER,
-            Directions.LEFT: ConnectorsEnum.UPPER,
-            Directions.RIGHT: ConnectorsEnum.UPPER,
-        },
-        proto_tile_name_enum.LOWER: {
-            Directions.UP: ConnectorsEnum.LOWER,
-            Directions.DOWN: ConnectorsEnum.LOWER,
-            Directions.LEFT: ConnectorsEnum.LOWER,
-            Directions.RIGHT: ConnectorsEnum.LOWER,
-        },
-        proto_tile_name_enum.WALL: {
-            Directions.UP: ConnectorsEnum.UPPER,
-            Directions.DOWN: ConnectorsEnum.LOWER,
-            Directions.LEFT: ConnectorsEnum.WALL_HORIZONTAL,
-            Directions.RIGHT: ConnectorsEnum.WALL_HORIZONTAL,
-        },
-        proto_tile_name_enum.WALL_CORNER: {
-            Directions.UP: ConnectorsEnum.WALL_VERTICAL,
-            Directions.DOWN: ConnectorsEnum.LOWER,
-            Directions.LEFT: ConnectorsEnum.WALL_HORIZONTAL,
-            Directions.RIGHT: ConnectorsEnum.LOWER,
-        },
-        proto_tile_name_enum.STAIRS: {
-            Directions.UP: ConnectorsEnum.UPPER,
-            Directions.DOWN: ConnectorsEnum.LOWER,
-            Directions.LEFT: ConnectorsEnum.WALL_HORIZONTAL,
-            Directions.RIGHT: ConnectorsEnum.WALL_HORIZONTAL,
-        },
-        proto_tile_name_enum.WALL_BRIDGE: {
-            Directions.UP: ConnectorsEnum.UPPER,
-            Directions.DOWN: ConnectorsEnum.BRIDGE_VERTICAL,
-            Directions.LEFT: ConnectorsEnum.WALL_HORIZONTAL,
-            Directions.RIGHT: ConnectorsEnum.WALL_HORIZONTAL,
-        },
-        proto_tile_name_enum.FLOOR_BRIDGE: {
-            Directions.UP: ConnectorsEnum.BRIDGE_VERTICAL,
-            Directions.DOWN: ConnectorsEnum.BRIDGE_VERTICAL,
-            Directions.LEFT: ConnectorsEnum.LOWER,
-            Directions.RIGHT: ConnectorsEnum.LOWER,
-        },
-        proto_tile_name_enum.BRIDGE_CORNER: {
-            Directions.UP: ConnectorsEnum.LOWER,
-            Directions.DOWN: ConnectorsEnum.BRIDGE_VERTICAL,
-            Directions.LEFT: ConnectorsEnum.LOWER,
-            Directions.RIGHT: ConnectorsEnum.BRIDGE_HORIZONTAL,
-        },
-        proto_tile_name_enum.BRIDGE_CORNER_COLUMN: {
-            Directions.UP: ConnectorsEnum.BRIDGE_VERTICAL,
-            Directions.DOWN: ConnectorsEnum.LOWER,
-            Directions.LEFT: ConnectorsEnum.LOWER,
-            Directions.RIGHT: ConnectorsEnum.BRIDGE_HORIZONTAL,
-        },
-    }
-    tile_weights = {
-        proto_tile_name_enum.UPPER: 20,
-        proto_tile_name_enum.LOWER: 20,
-        proto_tile_name_enum.WALL: 5,
-        proto_tile_name_enum.WALL_CORNER: 2,
-        proto_tile_name_enum.STAIRS: 1,
-        proto_tile_name_enum.WALL_BRIDGE: 1,
-        proto_tile_name_enum.FLOOR_BRIDGE: 1,
-        proto_tile_name_enum.BRIDGE_CORNER: 0.0,
-        proto_tile_name_enum.BRIDGE_CORNER_COLUMN: 0.0,
+    proto_connector_enum = Zelda2ProtoConnectors
 
-    }
-    tile_imgs = generate_tile_pixels()
+    def get_symmetry_generators(self):
+        return self.symmetry_generators_from_constraints()
+
+    @property
+    def connector_symmetries(self) -> Dict[ProtoConnectors, Group]:
+        hz_stab = GeneratedGroup({Group.flip_x(), Group.flip_y()})
+        return {
+            self.proto_connector_enum.UPPER: None,
+            self.proto_connector_enum.LOWER: None,
+            self.proto_connector_enum.WALL: GeneratedGroup({Group.flip_y()}),
+            self.proto_connector_enum.BRIDGE: hz_stab,
+        }
+
+    @property
+    def tile_symmetries(self) -> Dict[ProtoTileNames, Group]:
+        return {}
+
+    @property
+    def tile_constraints(self) -> Dict[ProtoTileNames, TileConstraints]:
+        connector_dict = ConnectorSymmetryGenerator(self.connector_symmetries).make_base_connector_dict()
+        lower = connector_dict[self.proto_connector_enum.LOWER]
+        upper = connector_dict[self.proto_connector_enum.UPPER]
+        wall_hz = connector_dict[self.proto_connector_enum.WALL]
+        wall_vt = wall_hz.transform(Group.rot90())
+        bridge_hz = connector_dict[self.proto_connector_enum.BRIDGE]
+        bridge_vt = bridge_hz.transform(Group.rot90())
+
+        return {
+            self.proto_tile_name_enum.LOWER: TileConstraints.make_constraints(
+                up=lower,
+                down=lower,
+                left=lower,
+                right=lower,
+            ),
+            self.proto_tile_name_enum.UPPER: TileConstraints.make_constraints(
+                up=upper,
+                down=upper,
+                left=upper,
+                right=upper,
+            ),
+            self.proto_tile_name_enum.WALL: TileConstraints.make_constraints(
+                up=upper,
+                down=lower,
+                left=wall_hz,
+                right=wall_hz,
+            ),
+            self.proto_tile_name_enum.WALL_CORNER: TileConstraints.make_constraints(
+                up=wall_vt,
+                down=lower,
+                left=wall_hz,
+                right=lower,
+            ),
+            self.proto_tile_name_enum.STAIRS: TileConstraints.make_constraints(
+                up=upper,
+                down=lower,
+                left=wall_hz,
+                right=wall_hz,
+            ),
+            self.proto_tile_name_enum.WALL_BRIDGE: TileConstraints.make_constraints(
+                up=upper,
+                down=bridge_vt,
+                left=wall_hz,
+                right=wall_hz,
+            ),
+            self.proto_tile_name_enum.FLOOR_BRIDGE: TileConstraints.make_constraints(
+                up=bridge_vt,
+                down=bridge_vt,
+                left=lower,
+                right=lower,
+            ),
+            self.proto_tile_name_enum.BRIDGE_CORNER: TileConstraints.make_constraints(
+                up=lower,
+                down=bridge_vt,
+                left=lower,
+                right=bridge_hz,
+            ),
+            self.proto_tile_name_enum.BRIDGE_CORNER_COLUMN: TileConstraints.make_constraints(
+                up=bridge_vt,
+                down=lower,
+                left=lower,
+                right=bridge_hz,
+            ),
+        }
+
+    @property
+    def tile_weights(self) -> Dict[ProtoTileNames, float]:
+        return {
+            self.proto_tile_name_enum.UPPER: 20,
+            self.proto_tile_name_enum.LOWER: 20,
+            self.proto_tile_name_enum.WALL: 5,
+            self.proto_tile_name_enum.WALL_CORNER: 2,
+            self.proto_tile_name_enum.STAIRS: 1,
+            self.proto_tile_name_enum.WALL_BRIDGE: 1,
+            self.proto_tile_name_enum.FLOOR_BRIDGE: 1,
+            self.proto_tile_name_enum.BRIDGE_CORNER: 0.001,
+            self.proto_tile_name_enum.BRIDGE_CORNER_COLUMN: 0.001,
+}
+
+    @property
+    def tile_imgs(self) -> Dict[ProtoTileNames, TilePixels]:
+        return generate_tile_pixels()
 
     def __init__(self):
         super().__init__()
-

@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 
 from tile_data.pipe_data import PipeTileSet
 from tile_data.zelda_data import ZeldaTileSet
+from tile_data.zelda_two_level import Zelda2TileSet
 from tileset import TileSet
 
 
@@ -19,7 +20,11 @@ def make_generic_grid(tileset: TileSet):
                      tile_data=tileset.tile_data,
                      init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                      )
-    collapse_animation_2(grid, grid)
+    #collapse_animation_2(grid, grid)
+
+    grid.scanline_collapse()
+    plt.imshow(grid.synthesize_img(), cmap='gray')
+    plt.show()
 
 
 def make_directed_pipe_grid():
@@ -114,6 +119,6 @@ def pixel_test(tileset):
 
 
 #make_directed_pipe_grid()
-make_generic_grid(DirectedPipeTileSet())
+make_generic_grid(Zelda2TileSet())
 #constraint_symmetry()
 pass
