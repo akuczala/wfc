@@ -10,17 +10,6 @@ from typing import Set, Tuple, Dict
 
 import numpy as np
 
-BASE_MATRIX_MAP = {
-    "I": (1, 0, 0, 1),
-    "Tx": (-1, 0, 0, 1),
-    "S": (0, -1, 1, 0),
-    "Ty": (1, 0, 0, -1),
-    "Txy": (0, 1, 1, 0)
-}
-MATRIX_NAMES = {
-    t: name for name, t in BASE_MATRIX_MAP.items()
-}
-
 
 class GroupTargetMixin:
     @abstractmethod
@@ -50,15 +39,47 @@ class TrivialGroupTarget(GroupTargetMixin):
         return hash(TrivialGroupTarget)
 
 
-@dataclass(frozen=True)
 class GroupAction:
     matrix_elements: Tuple[int, int, int, int]
+
+    @abstractmethod
+    def __mul__(self, other):
+        pass
+
+    @abstractmethod
+    def inverse(self):
+        pass
+
+    @abstractmethod
+    def power_iterator(self):
+        pass
+
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
+    def __hash__(self):
+        pass
+
+
+# Integer Matrices only
+@dataclass(frozen=True)
+class MatrixGroupAction(GroupAction):
+    matrix_elements: Tuple[int, ...]
+
+    def id(self):
+        return np.eye()
+
+    @property
+    def dim(self) -> int:
+        return int(np.sqrt(len(self.matrix_elements)))
 
     @classmethod
     def from_matrix(cls, matrix: np.ndarray):
         assert matrix.dtype == np.int
-        assert matrix.shape == (2, 2)
-        return GroupAction(
+        assert matrix.shape[0] == matrix.shape[1]
+        return cls(
             matrix_elements=tuple(x for x in matrix.ravel())
         )
 
@@ -66,23 +87,17 @@ class GroupAction:
     def matrix(self) -> np.ndarray:
         return np.array(self.matrix_elements).reshape(2, 2)
 
-    @property
-    def name(self):
-        return MATRIX_NAMES[self.matrix_elements]
-
     def __mul__(self, other):
-        return GroupAction.from_matrix(np.dot(self.matrix, other.matrix))
+        return self.from_matrix(np.dot(self.matrix, other.matrix))
 
     def inverse(self):
-        return GroupAction.from_matrix(signed_permutation_inverse_2x2(self.matrix))
-
-    # def calc_order(self, max_order: int=10) -> int:
+        return self.from_matrix(signed_permutation_inverse_2x2(self.matrix))
 
     def power_iterator(self):
         def power_generator(a):
-            yield Group.id()
+            yield self.id()
             g = a
-            while g != Group.id():
+            while g != self.id():
                 yield g
                 g = g * a
 
@@ -96,25 +111,10 @@ class GroupAction:
 
 
 class Group:
-    @staticmethod
-    def id():
-        return GroupAction(BASE_MATRIX_MAP["I"])
 
-    @staticmethod
-    def rot90():
-        return GroupAction(BASE_MATRIX_MAP["S"])
-
-    @staticmethod
-    def flip_y():
-        return GroupAction(BASE_MATRIX_MAP["Ty"])
-
-    @staticmethod
-    def flip_x():
-        return GroupAction(BASE_MATRIX_MAP["Tx"])
-
-    @staticmethod
-    def swap_xy():
-        return GroupAction(BASE_MATRIX_MAP["Txy"])
+    @abstractmethod
+    def id(self) -> GroupAction:
+        pass
 
     def get_elements(self) -> Set[GroupAction]:
         pass
@@ -136,15 +136,10 @@ class GeneratedGroup(Group):
 
 @dataclass
 class Trivial(Group):
+    _id: GroupAction
+
+    def id(self) -> GroupAction:
+        return self._id
+
     def get_elements(self) -> Set[GroupAction]:
-        return {Group.id()}
-
-
-Z4_SQUARE = GeneratedGroup({Group.rot90()})
-D4_SQUARE = GeneratedGroup({Group.rot90(), Group.flip_x()})
-
-# todo generalize
-_s = Group.rot90()
-_t = Group.flip_x()
-for (g1, g2) in ((_s, _s), (_s * _s, _s), (_s, _t), (_s * _s, _t), (_s * _s * _s, _t)):
-    MATRIX_NAMES[(g1 * g2).matrix_elements] = f"{g1.name}{g2.name}"
+        return {self.id()}

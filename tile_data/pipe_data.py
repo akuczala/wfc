@@ -2,7 +2,8 @@ import numpy as np
 
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
-from symmetry.groups import Group, GeneratedGroup
+from symmetry.groups import GeneratedGroup
+from symmetry.planar_groups import PlanarGroupAction
 from tile_data.connectors import PipeProtoConnectors
 from tiles import ProtoTileNames, TilePixels, TileConstraints
 from tileset import TileSet
@@ -16,8 +17,8 @@ class PipeProtoTileNames(ProtoTileNames):
     TERMINAL = 't'
 
 
-_rectangular_symmetry = GeneratedGroup({Group.flip_x(), Group.flip_y()})
-_diagonal_symmetry = GeneratedGroup({Group.swap_xy()})
+_rectangular_symmetry = GeneratedGroup({PlanarGroupAction.flip_x(), PlanarGroupAction.flip_y()})
+_diagonal_symmetry = GeneratedGroup({PlanarGroupAction.swap_xy()})
 
 
 class PipeTileSet(TileSet):
@@ -25,7 +26,6 @@ class PipeTileSet(TileSet):
     proto_tile_name_enum = PipeProtoTileNames
     proto_connector_enum = PipeProtoConnectors
 
-    # todo generate tile symmetries from connector symmetries?
     @property
     def tile_symmetries(self):
         return {}
@@ -45,7 +45,7 @@ class PipeTileSet(TileSet):
         connector_dict = ConnectorSymmetryGenerator(self.connector_symmetries).make_base_connector_dict()
         no_con, hz_con = connector_dict[self.proto_connector_enum.NONE], connector_dict[
             self.proto_connector_enum.HORIZONTAL]
-        vt_con = hz_con.transform(Group.rot90())
+        vt_con = hz_con.transform(PlanarGroupAction.rot90())
         return {
             PipeProtoTileNames.EMPTY: TileConstraints.make_constraints(
                 up=no_con,

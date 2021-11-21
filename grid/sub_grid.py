@@ -1,5 +1,6 @@
-from typing import Tuple
+from typing import Tuple, Iterable
 
+from directions import Directions
 from grid.cell import Cell
 from grid.grid import Grid
 from grid.grid_boundary import SuperGridBoundary
@@ -13,11 +14,15 @@ class SubGrid(Grid):
         self.pos = pos
         self.size = size
         super().__init__(
-            tuple((p[0], p[0] + s[0]) for p, s in zip(pos, size)),
+            tuple((p, p + s) for p, s in zip(pos, size)),
             SuperGridBoundary(),
             tile_data,
             init_cell_factory
         )
+
+    @property
+    def directions(self) -> Iterable[Directions]:
+        return self.super_grid.directions
 
     def populate_grid(self, init_cell_factory):
         for pos in self.pos_iterator:

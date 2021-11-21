@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from connectors import ProtoConnectors
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
-from symmetry.groups import Trivial, Z4_SQUARE, D4_SQUARE, GeneratedGroup, Group
+from symmetry.groups import GeneratedGroup, Group
 from tile_data.connectors import DirectedPipeProtoConnectors
 from tiles import ProtoTileNames, TilePixels, TileConstraints
 from tileset import TileSet

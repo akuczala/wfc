@@ -64,15 +64,14 @@ class TileSet(ABC):
                 name=tile,
                 weight=self.sym_proto_tile_data[tile].weight,
                 compatible_tiles={
-                    direction: self.get_constraint_compatible_tiles(tile, direction)
-                    for direction in Directions
+                    direction: self.get_connector_compatible_tiles(connector, direction)
+                    for direction, connector in self.sym_proto_tile_data[tile].constraints.get_map().items()
                 },
                 pixels=self.sym_proto_tile_data[tile].pixels
             ) for tile in self.tile_name_enum
         }
 
-    def get_constraint_compatible_tiles(self, this_tile: ProtoTileNames, direction: Directions):
-        connector = self.sym_proto_tile_data[this_tile].constraints.get(direction)
+    def get_connector_compatible_tiles(self, connector: Connectors, direction: Directions):
         return {
             tile for tile in self.tile_name_enum
             if self.sym_proto_tile_data[tile].constraints.get(direction.reverse()) == connector

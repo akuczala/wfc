@@ -3,7 +3,8 @@ from enum import Enum
 from typing import Dict, Optional
 
 from symmetry.coset import GroupCoset
-from symmetry.groups import GroupAction, Group, D4_SQUARE, GroupTargetMixin
+from symmetry.groups import GroupAction, Group, GroupTargetMixin
+from symmetry.planar_groups import D4_SQUARE
 from tiles import ProtoTileNames, ProtoTileData, TileConstraints
 
 TILE_TRANSFORMATION_GROUP = D4_SQUARE

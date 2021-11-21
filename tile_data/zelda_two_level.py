@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from connectors import ProtoConnectors
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
-from symmetry.groups import Trivial, Group, Z4_SQUARE, GeneratedGroup
+from symmetry.groups import Trivial, Group, GeneratedGroup
 from tile_data.connectors import ZeldaProtoConnectors, Zelda2ProtoConnectors
 from tiles import ProtoTileNames, TilePixels, TileConstraints
 from tileset import TileSet

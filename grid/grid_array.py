@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Iterable
 
 import numpy as np
 
+from directions import Directions, DIRECTIONS_DIM_MAP
 from grid.cell import Cell
 from grid.grid import Grid
 from grid.grid_boundary import GridBoundary
@@ -9,9 +10,14 @@ from grid.pos import Pos
 
 
 class GridArray(Grid):
+
     def __init__(self, shape: Tuple[int, ...], boundary: GridBoundary, tile_data, init_cell_factory=None):
         super().__init__(tuple((0, s) for s in shape), boundary, tile_data, init_cell_factory)
         self.cells: np.ndarray
+
+    @property
+    def directions(self) -> Iterable[Directions]:
+        return DIRECTIONS_DIM_MAP[self.dim]
 
     def populate_grid(self, init_cell_factory):
         self.cells = np.array([init_cell_factory() for _ in self.pos_iterator]).reshape(self.shape)

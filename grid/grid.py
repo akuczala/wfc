@@ -1,7 +1,6 @@
 import itertools
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
-
+from typing import Dict, Optional, Iterable
 
 from grid.cell import UncollapsedCell, Cell
 from directions import Directions
@@ -40,17 +39,20 @@ class Grid(ABC):
 
     # todo generalize to d dim
     def constrain_boundary(self):
-        for pos in itertools.chain(
-                itertools.product([self.index_bounds[0][0] - 1, self.index_bounds[0][1]], self.axis_iterator(1)),
-                itertools.product(self.axis_iterator(0), [self.index_bounds[1][0] - 1, self.index_bounds[1][1]])
-        ):
+        for pos in itertools.chain(*(
+                itertools.product(*(
+                        (
+                                [self.index_bounds[ax][0] - 1, self.index_bounds[ax][1]] if ax == chained_ax
+                                else self.axis_iterator(ax))
+                        for ax in range(self.dim)
+                )) for chained_ax in range(self.dim))):
             Propagator(self).constrain(pos)
 
     def local_collapse(self, pos):
         self.set_cell(self.get_cell(pos).collapse())
         for direction, npos in self.get_neighbor_dict(pos):
             compatible_tiles = self.get_cell(pos).get_compatible_tiles(direction)
-            self.get_cell(*npos).constrain(compatible_tiles)
+            self.get_cell(npos).constrain(compatible_tiles)
 
     def propagated_collapse(self, pos):
         self.set_cell(pos, self.get_cell(pos).collapse())
@@ -78,6 +80,11 @@ class Grid(ABC):
     def shape(self):
         return tuple(self.index_bounds[ax][1] - self.index_bounds[ax][0] for ax in range(self.dim))
 
+    @property
+    @abstractmethod
+    def directions(self) -> Iterable[Directions]:
+        pass
+
     def neighbor(self, pos: Pos, direction: Directions) -> Optional[Pos]:
         delta_pos = tuple(pos_i + direction.value[i] for i, pos_i in enumerate(pos))
         if self.in_bounds(delta_pos):
@@ -89,7 +96,7 @@ class Grid(ABC):
         return {
             d: n_pos
             for d, n_pos in
-            ((d, self.neighbor(pos, d)) for d in Directions)
+            ((d, self.neighbor(pos, d)) for d in self.directions)
             if n_pos is not None
         }
 
@@ -112,6 +119,7 @@ class Grid(ABC):
                 if min_entropy == 0:
                     break
                 yield pos
+
         return iter(min_pos_gen())
 
     def print(self):

@@ -16,8 +16,8 @@ from tileset import TileSet
 def make_generic_grid(tileset: TileSet):
     width, height = 20, 20
     grid = GridArray((width, height),
-                     #boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
-                     boundary=PeriodicGridBoundary(),
+                     boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
+                     #boundary=PeriodicGridBoundary(),
                      tile_data=tileset.tile_data,
                      init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                      )
@@ -33,9 +33,9 @@ def make_directed_pipe_grid():
     width, height = 20, 20
 
     # todo fix get tile name
-    empty_tile = tileset.get_tile_name(DirectedPipeTileSet.proto_tile_name_enum.EMPTY, Group.id())
-    emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
-    consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
+    empty_tile = tileset.get_tile_name(DirectedPipeTileSet.proto_tile_name_enum.EMPTY, Group.rot90() * Group.rot90())
+    #emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
+    #consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
 
     grid = GridArray((width, height),
                      boundary=ConstantGridBoundary(CollapsedCell(tileset.tile_data, empty_tile)),
@@ -48,7 +48,7 @@ def make_directed_pipe_grid():
     init_cell_factory = lambda: UncollapsedCell.excluding_weight_zero(tileset)
     sub_grid = SubGrid(grid, (0, 0), (20, 20), tileset.tile_data,
                        init_cell_factory=init_cell_factory)
-    place_emitter_consumer(tileset, grid)
+    #place_emitter_consumer(tileset, grid)
     # sub_grid.scanline_collapse()
     collapse_animation_2(sub_grid, grid)
 
@@ -120,6 +120,6 @@ def pixel_test(tileset):
 
 
 #make_directed_pipe_grid()
-make_generic_grid(DirectedPipeTileSet())
+make_generic_grid(PipeTileSet())
 #constraint_symmetry()
 pass
