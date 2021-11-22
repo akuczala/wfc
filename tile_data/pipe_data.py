@@ -47,31 +47,31 @@ class PipeTileSet(TileSet):
             self.proto_connector_enum.HORIZONTAL]
         vt_con = hz_con.transform(PlanarGroupAction.rot90())
         return {
-            PipeProtoTileNames.EMPTY: TileConstraints.make_constraints(
+            PipeProtoTileNames.EMPTY: TileConstraints.make_constraints_2d(
                 up=no_con,
                 down=no_con,
                 left=no_con,
                 right=no_con
             ),
-            PipeProtoTileNames.HORIZONTAL_PIPE: TileConstraints.make_constraints(
+            PipeProtoTileNames.HORIZONTAL_PIPE: TileConstraints.make_constraints_2d(
                 up=no_con,
                 down=no_con,
                 left=hz_con,
                 right=hz_con
             ),
-            PipeProtoTileNames.CROSS_PIPE: TileConstraints.make_constraints(
+            PipeProtoTileNames.CROSS_PIPE: TileConstraints.make_constraints_2d(
                 up=vt_con,
                 down=vt_con,
                 left=hz_con,
                 right=hz_con
             ),
-            PipeProtoTileNames.ANGLE_PIPE: TileConstraints.make_constraints(
+            PipeProtoTileNames.ANGLE_PIPE: TileConstraints.make_constraints_2d(
                 up=vt_con,
                 down=no_con,
                 left=no_con,
                 right=hz_con,
             ),
-            PipeProtoTileNames.TERMINAL: TileConstraints.make_constraints(
+            PipeProtoTileNames.TERMINAL: TileConstraints.make_constraints_2d(
                 up=vt_con,
                 down=no_con,
                 left=no_con,

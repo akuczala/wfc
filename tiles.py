@@ -6,7 +6,7 @@ from typing import Dict, Set
 import numpy as np
 
 from connectors import Connectors
-from directions import Directions, Directions2D
+from directions import Directions, Directions2D, Directions3D
 from symmetry.groups import GroupTargetMixin, GroupAction
 from utils import transform_pixels
 
@@ -44,12 +44,25 @@ class TileConstraints(GroupTargetMixin):
         return self.constraint_dict
 
     @staticmethod
-    def make_constraints(up: Connectors, down: Connectors, left: Connectors, right: Connectors) -> TileConstraints:
+    def make_constraints_2d(up: Connectors, down: Connectors, left: Connectors, right: Connectors) -> TileConstraints:
         return TileConstraints(constraint_dict={
             Directions2D.UP: up,
             Directions2D.DOWN: down,
             Directions2D.LEFT: left,
             Directions2D.RIGHT: right
+        })
+
+    @staticmethod
+    def make_constraints_3d(
+            up: Connectors, down: Connectors, left: Connectors, right: Connectors,
+            in_: Connectors, out: Connectors) -> TileConstraints:
+        return TileConstraints(constraint_dict={
+            Directions3D.UP: up,
+            Directions3D.DOWN: down,
+            Directions3D.LEFT: left,
+            Directions3D.RIGHT: right,
+            Directions3D.IN: in_,
+            Directions3D.OUT: out
         })
 
 
@@ -92,4 +105,3 @@ class TileData:
     weight: float
     compatible_tiles: Dict[Directions, Set[TileNames]]
     pixels: Set[TileNames]
-

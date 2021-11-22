@@ -6,6 +6,7 @@ from connectors import ProtoConnectors
 from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
 from symmetry.groups import GeneratedGroup, Group
+from symmetry.planar_groups import PlanarGroupAction
 from tile_data.connectors import DirectedPipeProtoConnectors
 from tiles import ProtoTileNames, TilePixels, TileConstraints
 from tileset import TileSet
@@ -89,7 +90,7 @@ class DirectedPipeTileSet(TileSet):
     def connector_symmetries(self) -> Dict[ProtoConnectors, Group]:
         return {
             self.proto_connector_enum.NONE: None,
-            self.proto_connector_enum.UP: GeneratedGroup({Group.flip_y()})
+            self.proto_connector_enum.UP: GeneratedGroup({PlanarGroupAction.flip_y()})
         }
 
     @property
@@ -97,53 +98,53 @@ class DirectedPipeTileSet(TileSet):
         connector_dict = ConnectorSymmetryGenerator(self.connector_symmetries).make_base_connector_dict()
         none = connector_dict[self.proto_connector_enum.NONE]
         up = connector_dict[self.proto_connector_enum.UP]
-        left = up.transform(Group.rot90())
-        down = left.transform(Group.rot90())
-        right = down.transform(Group.rot90())
+        left = up.transform(PlanarGroupAction.rot90())
+        down = left.transform(PlanarGroupAction.rot90())
+        right = down.transform(PlanarGroupAction.rot90())
         return {
-            self.proto_tile_name_enum.EMPTY: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.EMPTY: TileConstraints.make_constraints_2d(
                 up=none,
                 down=none,
                 left=none,
                 right=none,
             ),
-            self.proto_tile_name_enum.PIPE: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.PIPE: TileConstraints.make_constraints_2d(
                 up=none,
                 down=none,
                 left=right,
                 right=right,
             ),
-            self.proto_tile_name_enum.CROSS_PIPE: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.CROSS_PIPE: TileConstraints.make_constraints_2d(
                 up=up,
                 down=up,
                 left=right,
                 right=right,
             ),
-            self.proto_tile_name_enum.ANGLE_PIPE: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.ANGLE_PIPE: TileConstraints.make_constraints_2d(
                 up=up,
                 down=none,
                 left=none,
                 right=left,
             ),
-            self.proto_tile_name_enum.EMITTER: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.EMITTER: TileConstraints.make_constraints_2d(
                 up=up,
                 down=none,
                 left=none,
                 right=none,
             ),
-            self.proto_tile_name_enum.CONSUMER: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.CONSUMER: TileConstraints.make_constraints_2d(
                 up=down,
                 down=none,
                 left=none,
                 right=none,
             ),
-            self.proto_tile_name_enum.SPLITTER: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.SPLITTER: TileConstraints.make_constraints_2d(
                 up=none,
                 down=down,
                 left=right,
                 right=right,
             ),
-            self.proto_tile_name_enum.MERGER: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.MERGER: TileConstraints.make_constraints_2d(
                 up=none,
                 down=down,
                 left=right,

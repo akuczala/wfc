@@ -2,7 +2,8 @@ from grid.cell import CollapsedCell, UncollapsedCell
 from grid.grid_array import GridArray
 from grid.grid_boundary import ConstantGridBoundary, PeriodicGridBoundary
 from grid.sub_grid import SubGrid
-from symmetry.groups import Group
+from symmetry.planar_groups import PlanarGroupAction
+from symmetry.cubic_groups import CUBIC_GROUP
 from tile_data.connectors import PipeProtoConnectors
 from tile_data.directed_pipe_data import DirectedPipeTileSet
 from matplotlib import pyplot as plt
@@ -33,7 +34,10 @@ def make_directed_pipe_grid():
     width, height = 20, 20
 
     # todo fix get tile name
-    empty_tile = tileset.get_tile_name(DirectedPipeTileSet.proto_tile_name_enum.EMPTY, Group.rot90() * Group.rot90())
+    empty_tile = tileset.get_tile_name(
+        DirectedPipeTileSet.proto_tile_name_enum.EMPTY,
+        PlanarGroupAction.rot90() * PlanarGroupAction.rot90()
+    )
     #emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
     #consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
 
@@ -119,7 +123,7 @@ def pixel_test(tileset):
     plt.show()
 
 
-#make_directed_pipe_grid()
-make_generic_grid(PipeTileSet())
+make_directed_pipe_grid()
+#make_generic_grid(PipeTileSet())
 #constraint_symmetry()
 pass

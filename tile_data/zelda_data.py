@@ -75,49 +75,49 @@ class ZeldaTileSet(TileSet):
         bridge_vt = bridge_hz.transform(Group.rot90())
 
         return {
-            self.proto_tile_name_enum.FLOOR: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.FLOOR: TileConstraints.make_constraints_2d(
                 up=none,
                 down=none,
                 left=none,
                 right=none,
             ),
-            self.proto_tile_name_enum.WALL: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.WALL: TileConstraints.make_constraints_2d(
                 up=none,
                 down=none,
                 left=wall_hz,
                 right=wall_hz,
             ),
-            self.proto_tile_name_enum.WALL_CORNER: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.WALL_CORNER: TileConstraints.make_constraints_2d(
                 up=wall_vt,
                 down=none,
                 left=wall_hz,
                 right=none,
             ),
-            self.proto_tile_name_enum.STAIRS: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.STAIRS: TileConstraints.make_constraints_2d(
                 up=none,
                 down=none,
                 left=wall_hz,
                 right=wall_hz,
             ),
-            self.proto_tile_name_enum.WALL_BRIDGE: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.WALL_BRIDGE: TileConstraints.make_constraints_2d(
                 up=none,
                 down=bridge_vt,
                 left=wall_hz,
                 right=wall_hz,
             ),
-            self.proto_tile_name_enum.FLOOR_BRIDGE: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.FLOOR_BRIDGE: TileConstraints.make_constraints_2d(
                 up=bridge_vt,
                 down=bridge_vt,
                 left=none,
                 right=none,
             ),
-            self.proto_tile_name_enum.BRIDGE_CORNER: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.BRIDGE_CORNER: TileConstraints.make_constraints_2d(
                 up=none,
                 down=bridge_vt,
                 left=none,
                 right=bridge_hz,
             ),
-            self.proto_tile_name_enum.BRIDGE_CORNER_COLUMN: TileConstraints.make_constraints(
+            self.proto_tile_name_enum.BRIDGE_CORNER_COLUMN: TileConstraints.make_constraints_2d(
                 up=bridge_vt,
                 down=none,
                 left=none,

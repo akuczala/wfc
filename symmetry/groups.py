@@ -85,7 +85,7 @@ class MatrixGroupAction(GroupAction):
 
     @property
     def matrix(self) -> np.ndarray:
-        return np.array(self.matrix_elements).reshape(2, 2)
+        return np.array(self.matrix_elements).reshape(self.dim, self.dim)
 
     def __mul__(self, other):
         return self.from_matrix(np.dot(self.matrix, other.matrix))
