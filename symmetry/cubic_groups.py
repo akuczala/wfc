@@ -34,7 +34,11 @@ MATRIX_NAMES = {
 class CubicGroupAction(MatrixGroupAction):
 
     def id(self):
-        return self.__class__(BASE_MATRIX_MAP["I"])
+        return self.cubic_id()
+
+    @classmethod
+    def cubic_id(cls):
+        return cls(BASE_MATRIX_MAP["I"])
 
     @classmethod
     def xy90(cls):

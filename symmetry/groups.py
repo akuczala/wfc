@@ -69,7 +69,7 @@ class MatrixGroupAction(GroupAction):
     matrix_elements: Tuple[int, ...]
 
     def id(self):
-        return np.eye()
+        return np.eye(self.dim)
 
     @property
     def dim(self) -> int:

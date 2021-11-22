@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict, Type, Set
 
-import numpy as np
-
 from connectors import Connectors, ProtoConnectors
 from directions import Directions
 from symmetry.groups import Group, GroupAction
 from symmetry.tile_symmetry_generator import TileSymmetryGenerator
-from tiles import ProtoTileData, ProtoTileNames, TileData, TileNames, TilePixels, TileConstraints
+from tiles.data import TileConstraints, ProtoTileData, TileData
+from tiles.graphics import TileGraphics
+from tiles.names import ProtoTileNames, TileNames
 
 
 class TileSet(ABC):
@@ -34,7 +34,7 @@ class TileSet(ABC):
 
     @property
     @abstractmethod
-    def tile_imgs(self) -> Dict[ProtoTileNames, TilePixels]:
+    def tile_graphics(self) -> Dict[ProtoTileNames, TileGraphics]:
         pass
 
     @property
@@ -53,7 +53,7 @@ class TileSet(ABC):
                 name=name,
                 constraints=self.tile_constraints[name],
                 weight=self.tile_weights[name],
-                pixels=self.tile_imgs[name]
+                graphics=self.tile_graphics[name]
             )
             for name in self.proto_tile_name_enum
         }
@@ -67,7 +67,7 @@ class TileSet(ABC):
                     direction: self.get_connector_compatible_tiles(connector, direction)
                     for direction, connector in self.sym_proto_tile_data[tile].constraints.get_map().items()
                 },
-                pixels=self.sym_proto_tile_data[tile].pixels
+                graphics=self.sym_proto_tile_data[tile].graphics
             ) for tile in self.tile_name_enum
         }
 

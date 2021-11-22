@@ -4,11 +4,12 @@ from typing import Dict
 from matplotlib import pyplot as plt
 
 from connectors import ProtoConnectors
-from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
-from symmetry.groups import Trivial, Group, GeneratedGroup
-from tile_data.connectors import ZeldaProtoConnectors, Zelda2ProtoConnectors
-from tiles import ProtoTileNames, TilePixels, TileConstraints
+from symmetry.groups import Group, GeneratedGroup
+from tile_data.connectors import Zelda2ProtoConnectors
+from tiles.data import TileConstraints
+from tiles.graphics import TilePixels
+from tiles.names import ProtoTileNames
 from tileset import TileSet
 
 

@@ -3,12 +3,13 @@ from typing import Dict
 from matplotlib import pyplot as plt
 
 from connectors import ProtoConnectors
-from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
 from symmetry.groups import GeneratedGroup, Group
 from symmetry.planar_groups import PlanarGroupAction
 from tile_data.connectors import DirectedPipeProtoConnectors
-from tiles import ProtoTileNames, TilePixels, TileConstraints
+from tiles.data import TileConstraints
+from tiles.graphics import TileGraphics, TilePixels
+from tiles.names import ProtoTileNames
 from tileset import TileSet
 
 
@@ -67,7 +68,7 @@ class DirectedPipeTileSet(TileSet):
         }
 
     @property
-    def tile_imgs(self) -> Dict[ProtoTileNames, TilePixels]:
+    def tile_graphics(self) -> Dict[ProtoTileNames, TileGraphics]:
         return generate_tile_pixels()
 
     @property

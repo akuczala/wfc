@@ -7,7 +7,8 @@ from directions import Directions
 from grid.grid_boundary import GridBoundary
 from grid.pos import Pos
 from propagator import Propagator
-from tiles import TileNames, TileData
+from tiles.data import TileData
+from tiles.names import TileNames
 
 
 class Grid(ABC):

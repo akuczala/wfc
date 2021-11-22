@@ -36,6 +36,6 @@ class GridArray(Grid):
 
     def synthesize_img(self):
         return np.concatenate([
-            np.concatenate([c.get_pixels() for c in row], axis=1)
+            np.concatenate([c.get_graphics().array for c in row], axis=1)
             for row in self.cells], axis=0
         )

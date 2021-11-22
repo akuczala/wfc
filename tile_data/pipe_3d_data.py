@@ -1,12 +1,11 @@
-import numpy as np
+from typing import Dict
 
-from directions import Directions
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
 from symmetry.cubic_groups import CubicGroupAction
 from symmetry.groups import GeneratedGroup
-from symmetry.planar_groups import PlanarGroupAction
 from tile_data.connectors import PipeProtoConnectors
-from tiles import ProtoTileNames, TilePixels, TileConstraints
+from tiles.graphics import TileGraphics, MatrixActionGraphics
+from tile_data import ProtoTileNames, TileConstraints
 from tileset import TileSet
 
 
@@ -84,34 +83,11 @@ class PipeTileSet(TileSet):
         }
 
     @property
-    def tile_imgs(self):
-        return {k: TilePixels(v) for k, v in {
-            PipeProtoTileNames.EMPTY: np.array([
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0]
-            ]),
-            PipeProtoTileNames.HORIZONTAL_PIPE: np.array([
-                [0, 0, 0],
-                [1, 1, 1],
-                [0, 0, 0]
-            ]),
-            PipeProtoTileNames.CROSS_PIPE: np.array([
-                [0, 1, 0],
-                [1, 1, 1],
-                [0, 1, 0]
-            ]),
-            PipeProtoTileNames.ANGLE_PIPE: np.array([
-                [0, 1, 0],
-                [0, 1, 1],
-                [0, 0, 0]
-            ]),
-            PipeProtoTileNames.TERMINAL: np.array([
-                [0, 1, 0],
-                [0, 1, 0],
-                [0, 0, 0]
-            ]),
-        }.items()}
+    def tile_graphics(self) -> Dict[ProtoTileNames, TileGraphics]:
+        return {
+            name: MatrixActionGraphics(name=name, action=CubicGroupAction.cubic_id())
+            for name in self.proto_tile_name_enum
+        }
 
     def __init__(self):
         super().__init__()

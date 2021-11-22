@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from enum import Enum
 from typing import Dict, Set
 
 import numpy as np
@@ -8,21 +7,8 @@ import numpy as np
 from connectors import Connectors
 from directions import Directions, Directions2D, Directions3D
 from symmetry.groups import GroupTargetMixin, GroupAction
-from utils import transform_pixels
-
-
-class ProtoTileNames(Enum):
-
-    def get_all_tiles(self):
-        return {t for t in self}
-
-
-@dataclass
-class TilePixels(GroupTargetMixin):
-    array: np.ndarray
-
-    def transform(self, g_action: GroupAction) -> TilePixels:
-        return transform_pixels(g_action.matrix, self.array)
+from tiles.graphics import TileGraphics
+from tiles.names import ProtoTileNames, TileNames
 
 
 @dataclass(frozen=True)
@@ -71,7 +57,7 @@ class ProtoTileData:
     constraints: TileConstraints
     weight: float
     name: ProtoTileNames
-    pixels: TilePixels
+    graphics: TileGraphics
 
 
 @dataclass
@@ -83,7 +69,7 @@ class SymmetryGeneratedProtoTileData(ProtoTileData, GroupTargetMixin):
             constraints=self.constraints.transform(g_action),
             weight=self.weight,
             name=self.name,
-            pixels=self.pixels.transform(g_action),
+            graphics=self.graphics.transform(g_action),
             g_target=self.g_target.transform(g_action)
         )
 
@@ -95,13 +81,9 @@ def random_tile(tile_data, tiles):
     return np.random.choice(tile_list, p=probs)
 
 
-class TileNames:
-    pass
-
-
 @dataclass
 class TileData:
     name: TileNames
     weight: float
     compatible_tiles: Dict[Directions, Set[TileNames]]
-    pixels: Set[TileNames]
+    graphics: TileGraphics

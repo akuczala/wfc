@@ -5,7 +5,8 @@ from typing import Dict, Optional
 from symmetry.coset import GroupCoset
 from symmetry.groups import GroupAction, Group, GroupTargetMixin
 from symmetry.planar_groups import D4_SQUARE
-from tiles import ProtoTileNames, ProtoTileData, TileConstraints
+from tiles.data import TileConstraints, ProtoTileData
+from tiles.names import ProtoTileNames
 
 TILE_TRANSFORMATION_GROUP = D4_SQUARE
 
@@ -29,7 +30,7 @@ class TileSymmetryGenerator:
             name=name_enum(self.transform_tile_name(g_action, tile_data.name)),
             weight=tile_data.weight,  # todo consider dividing by # generated tiles?
             constraints=tile_data.constraints.transform(g_action),
-            pixels=tile_data.pixels.transform(g_action)
+            graphics=tile_data.graphics.transform(g_action)
         )
 
     @staticmethod

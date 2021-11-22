@@ -3,7 +3,9 @@ from typing import Set
 
 import numpy as np
 
-from tiles import random_tile, TileNames
+from tiles.data import random_tile
+from tiles.graphics import TileGraphics, TilePixels
+from tiles.names import TileNames
 from tileset import TileSet
 
 
@@ -28,7 +30,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def get_pixels(self) -> np.ndarray:
+    def get_graphics(self) -> TileGraphics:
         pass
 
 
@@ -71,8 +73,9 @@ class UncollapsedCell(Cell):
     def __repr__(self):
         return str(self.entropy())
 
-    def get_pixels(self) -> np.ndarray:
-        return np.mean([self.tile_data[t].pixels for t in self.tiles],axis=0)
+    # todo generalize beyond tile pixels
+    def get_graphics(self) -> TileGraphics:
+        return TilePixels(np.mean([self.tile_data[t].graphics.array for t in self.tiles], axis=0))
 
 
 class CollapsedCell(Cell):
@@ -94,8 +97,8 @@ class CollapsedCell(Cell):
     def get_compatible_tiles(self, direction):
         return self.tile_data[self.tile].compatible_tiles[direction]
 
-    def get_pixels(self) -> np.ndarray:
-        return self.tile_data[self.tile].pixels
+    def get_graphics(self) -> TileGraphics:
+        return self.tile_data[self.tile].graphics
 
     @property
     def tiles(self):
