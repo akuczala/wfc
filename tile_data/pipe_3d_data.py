@@ -1,12 +1,10 @@
-from typing import Dict
-
 from symmetry.connector_symmetry_generator import ConnectorSymmetryGenerator
 from symmetry.cubic_groups import CubicGroupAction
 from symmetry.groups import GeneratedGroup
 from tile_data.connectors import PipeProtoConnectors
-from tiles.graphics import TileGraphics, MatrixActionGraphics
-from tile_data import ProtoTileNames, TileConstraints
-from tileset import TileSet
+from tiles.data import TileConstraints
+from tiles.names import ProtoTileNames
+from tileset import CubicTileSet
 
 
 class PipeProtoTileNames(ProtoTileNames):
@@ -17,10 +15,10 @@ class PipeProtoTileNames(ProtoTileNames):
     TERMINAL = 't'
 
 
-_diaxial_symmetry = GeneratedGroup({CubicGroupAction.xy90(), CubicGroupAction.flip_z()})
+_diaxial_symmetry = GeneratedGroup({CubicGroupAction.xy90(), CubicGroupAction.flip_z(), CubicGroupAction.flip_x()})
 
 
-class PipeTileSet(TileSet):
+class Pipe3DTileSet(CubicTileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymPipeProtoTileNames"
     proto_tile_name_enum = PipeProtoTileNames
     proto_connector_enum = PipeProtoConnectors
@@ -51,42 +49,35 @@ class PipeTileSet(TileSet):
                 *(no_con for _ in range(6))
             ),
             PipeProtoTileNames.HORIZONTAL_PIPE: TileConstraints.make_constraints_3d(
-                up=no_con, down=no_con,
+                up=z_con, down=z_con,
                 left=no_con, right=no_con,
-                in_=z_con, out=z_con
+                in_=no_con, out=no_con
             ),
             PipeProtoTileNames.CROSS_PIPE: TileConstraints.make_constraints_3d(
-                up=x_con, down=x_con,
-                left=y_con, right=y_con,
-                in_=z_con, out=z_con
+                up=z_con, down=z_con,
+                left=x_con, right=x_con,
+                in_=y_con, out=y_con
             ),
             PipeProtoTileNames.ANGLE_PIPE: TileConstraints.make_constraints_3d(
-                up=no_con, down=no_con,
-                left=no_con, right=y_con,
-                in_=z_con, out=no_con
+                up=z_con, down=no_con,
+                left=no_con, right=no_con,
+                in_=z_con, out=y_con
             ),
             PipeProtoTileNames.TERMINAL: TileConstraints.make_constraints_3d(
-                up=no_con, down=no_con,
+                up=no_con, down=z_con,
                 left=no_con, right=no_con,
-                in_=z_con, out=no_con
+                in_=no_con, out=no_con
             ),
         }
 
     @property
     def tile_weights(self):
         return {
-            PipeProtoTileNames.EMPTY: 3,
+            PipeProtoTileNames.EMPTY: 400,
             PipeProtoTileNames.HORIZONTAL_PIPE: 3,
-            PipeProtoTileNames.CROSS_PIPE: 1,
+            PipeProtoTileNames.CROSS_PIPE: 0.1,
             PipeProtoTileNames.ANGLE_PIPE: 1,
-            PipeProtoTileNames.TERMINAL: 0.01
-        }
-
-    @property
-    def tile_graphics(self) -> Dict[ProtoTileNames, TileGraphics]:
-        return {
-            name: MatrixActionGraphics(name=name, action=CubicGroupAction.cubic_id())
-            for name in self.proto_tile_name_enum
+            PipeProtoTileNames.TERMINAL: 0.01,
         }
 
     def __init__(self):

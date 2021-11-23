@@ -10,7 +10,7 @@ from tile_data.connectors import DirectedPipeProtoConnectors
 from tiles.data import TileConstraints
 from tiles.graphics import TileGraphics, TilePixels
 from tiles.names import ProtoTileNames
-from tileset import TileSet
+from tileset import SquareTileSet
 
 
 class DirectedProtoTileNames(ProtoTileNames):
@@ -49,7 +49,7 @@ def generate_tile_pixels():
     }
 
 
-class DirectedPipeTileSet(TileSet):
+class DirectedPipeTileSet(SquareTileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymDirectedProtoTileNames"
     proto_tile_name_enum = DirectedProtoTileNames
     proto_connector_enum = DirectedPipeProtoConnectors

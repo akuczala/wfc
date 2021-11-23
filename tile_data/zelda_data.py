@@ -10,7 +10,7 @@ from tile_data.connectors import ZeldaProtoConnectors
 from tiles.data import TileConstraints
 from tiles.graphics import TilePixels
 from tiles.names import ProtoTileNames
-from tileset import TileSet
+from tileset import SquareTileSet
 
 
 class ZeldaProtoTileNames(ProtoTileNames):
@@ -49,7 +49,7 @@ def generate_tile_pixels():
     }
 
 
-class ZeldaTileSet(TileSet):
+class ZeldaTileSet(SquareTileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymZeldaProtoTileNames"
     proto_tile_name_enum = ZeldaProtoTileNames
     proto_connector_enum = ZeldaProtoConnectors
@@ -141,7 +141,7 @@ class ZeldaTileSet(TileSet):
         }
 
     @property
-    def tile_imgs(self) -> Dict[ProtoTileNames, TilePixels]:
+    def tile_graphics(self) -> Dict[ProtoTileNames, TilePixels]:
         return generate_tile_pixels()
 
     def __init__(self):

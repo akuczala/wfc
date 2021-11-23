@@ -1,6 +1,6 @@
 import numpy as np
 
-from symmetry.groups import GroupAction, GeneratedGroup, MatrixGroupAction
+from symmetry.groups import GeneratedGroup, MatrixGroupAction
 
 BASE_MATRIX_MAP = {
     name: tuple(int(x) for x in mat.ravel())
@@ -73,8 +73,6 @@ CUBIC_GROUP = GeneratedGroup({
     CubicGroupAction.xy90(), CubicGroupAction.xz90(), CubicGroupAction.yz90(),
     CubicGroupAction.flip_x()})
 
-# # todo generalize
-# _s = PlanarGroupAction.rot90()
-# _t = PlanarGroupAction.flip_x()
-# for (g1, g2) in ((_s, _s), (_s * _s, _s), (_s, _t), (_s * _s, _t), (_s * _s * _s, _t)):
-#     MATRIX_NAMES[(g1 * g2).matrix_elements] = f"{g1.name}{g2.name}"
+for name, g in CUBIC_GROUP.generate_names().items():
+    MATRIX_NAMES[g.matrix_elements] = name
+pass

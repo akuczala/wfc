@@ -26,7 +26,7 @@ class MatrixActionGraphics(TileGraphics):
     name: ProtoTileNames
 
     def transform(self, g_action: GroupAction) -> GroupTargetMixin:
-        return self.__class__(self.name, g_action * self.action)
+        return self.__class__(name=self.name, action=g_action * self.action)
 
 
 @dataclass

@@ -1,3 +1,5 @@
+import numpy as np
+
 from grid.cell import CollapsedCell, UncollapsedCell
 from grid.grid_array import GridArray
 from grid.grid_boundary import ConstantGridBoundary, PeriodicGridBoundary
@@ -8,17 +10,18 @@ from tile_data.connectors import PipeProtoConnectors
 from tile_data.directed_pipe_data import DirectedPipeTileSet
 from matplotlib import pyplot as plt
 
+from tile_data.pipe_3d_data import Pipe3DTileSet
 from tile_data.pipe_data import PipeTileSet
 from tile_data.zelda_data import ZeldaTileSet
 from tile_data.zelda_two_level import Zelda2TileSet
 from tileset import TileSet
 
 
-def make_generic_grid(tileset: TileSet):
+def make_generic_grid_2d(tileset: TileSet):
     width, height = 20, 20
     grid = GridArray((width, height),
                      boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
-                     #boundary=PeriodicGridBoundary(),
+                     # boundary=PeriodicGridBoundary(),
                      tile_data=tileset.tile_data,
                      init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                      )
@@ -29,6 +32,23 @@ def make_generic_grid(tileset: TileSet):
     # plt.show()
 
 
+def make_generic_grid_3d(tileset: TileSet):
+    shape = (10, 10, 10)
+    grid = GridArray(shape,
+                     boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
+                     tile_data=tileset.tile_data,
+                     init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
+                     )
+    grid.min_entropy_collapse()
+    transform_array = np.array([
+        grid.get_cell(pos).get_graphics().action.matrix_elements for pos in grid.pos_iterator
+    ]).reshape(grid.shape + (3,3))
+    name_array = np.array([
+        grid.get_cell(pos).tile.value[0] for pos in grid.pos_iterator
+    ]).reshape(grid.shape)
+    np.save('pipe3d_transform.npy', transform_array)
+    np.save('pipe3d_name.npy', name_array)
+
 def make_directed_pipe_grid():
     tileset = DirectedPipeTileSet()
     width, height = 20, 20
@@ -38,8 +58,8 @@ def make_directed_pipe_grid():
         DirectedPipeTileSet.proto_tile_name_enum.EMPTY,
         PlanarGroupAction.rot90() * PlanarGroupAction.rot90()
     )
-    #emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
-    #consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
+    # emitter_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.EMITTER)
+    # consumer_tiles = tileset.get_tile_names(DirectedPipeTileSet.proto_tile_name_enum.CONSUMER)
 
     grid = GridArray((width, height),
                      boundary=ConstantGridBoundary(CollapsedCell(tileset.tile_data, empty_tile)),
@@ -52,7 +72,7 @@ def make_directed_pipe_grid():
     init_cell_factory = lambda: UncollapsedCell.excluding_weight_zero(tileset)
     sub_grid = SubGrid(grid, (0, 0), (20, 20), tileset.tile_data,
                        init_cell_factory=init_cell_factory)
-    #place_emitter_consumer(tileset, grid)
+    # place_emitter_consumer(tileset, grid)
     # sub_grid.scanline_collapse()
     collapse_animation_2(sub_grid, grid)
 
@@ -123,7 +143,8 @@ def pixel_test(tileset):
     plt.show()
 
 
-make_directed_pipe_grid()
-#make_generic_grid(PipeTileSet())
-#constraint_symmetry()
+# make_directed_pipe_grid()
+#make_generic_grid_2d(PipeTileSet())
+make_generic_grid_3d(Pipe3DTileSet())
+# constraint_symmetry()
 pass

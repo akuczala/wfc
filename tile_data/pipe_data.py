@@ -9,7 +9,7 @@ from tile_data.connectors import PipeProtoConnectors
 from tiles.data import TileConstraints
 from tiles.graphics import TileGraphics, TilePixels
 from tiles.names import ProtoTileNames
-from tileset import TileSet
+from tileset import TileSet, SquareTileSet
 
 
 class PipeProtoTileNames(ProtoTileNames):
@@ -24,7 +24,7 @@ _rectangular_symmetry = GeneratedGroup({PlanarGroupAction.flip_x(), PlanarGroupA
 _diagonal_symmetry = GeneratedGroup({PlanarGroupAction.swap_xy()})
 
 
-class PipeTileSet(TileSet):
+class PipeTileSet(SquareTileSet):
     SYM_PROTO_TILE_NAMES_ENUM_NAME = "SymPipeProtoTileNames"
     proto_tile_name_enum = PipeProtoTileNames
     proto_connector_enum = PipeProtoConnectors

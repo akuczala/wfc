@@ -43,6 +43,10 @@ class GroupAction:
     matrix_elements: Tuple[int, int, int, int]
 
     @abstractmethod
+    def id(self):
+        pass
+
+    @abstractmethod
     def __mul__(self, other):
         pass
 
@@ -123,15 +127,42 @@ class Group:
         return len(self.get_elements())
 
 
+# todo: give this an identity element somehow
 @dataclass
 class GeneratedGroup(Group):
     generators: Set[GroupAction]
+
+    def id(self) -> GroupAction:
+        return next(iter(self.generators)).id()
 
     def get_elements(self) -> Set[GroupAction]:
         return {
             reduce(lambda g1, g2: g1 * g2, g_tuple)
             for g_tuple in itertools.product(*(gen.power_iterator() for gen in self.generators))
         }
+
+    def generate_names(self) -> Dict[str, GroupAction]:
+        out = {g.name: g for g in self.generators}
+        out[self.id().name] = self.id()
+        # if we use a list of generators rather than list of lists, the generators do not each
+        # capture their appropriate value of gen
+        name_g_pair_gens = [
+            [(self._name_generator_power(gen, p), g) for p, g in enumerate(gen.power_iterator())]
+            for gen in self.generators
+        ]
+        for pairs in itertools.product(*name_g_pair_gens):
+            names, group_elements = zip(*pairs)
+            g = reduce(lambda g1, g2: g1 * g2, group_elements)
+            if g not in out.values():
+                out["".join((n for n in names if n != self.id().name))] = g
+        return out
+
+    def _name_generator_power(self, gen: GroupAction, p: int) -> str:
+        if p == 0:
+            return self.id().name
+        if p == 1:
+            return gen.name
+        return f"{gen.name}^{p}_"
 
 
 @dataclass

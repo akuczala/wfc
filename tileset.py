@@ -4,10 +4,12 @@ from typing import Dict, Type, Set
 
 from connectors import Connectors, ProtoConnectors
 from directions import Directions
+from symmetry.cubic_groups import CUBIC_GROUP, CubicGroupAction
 from symmetry.groups import Group, GroupAction
+from symmetry.planar_groups import D4_SQUARE
 from symmetry.tile_symmetry_generator import TileSymmetryGenerator
 from tiles.data import TileConstraints, ProtoTileData, TileData
-from tiles.graphics import TileGraphics
+from tiles.graphics import TileGraphics, MatrixActionGraphics
 from tiles.names import ProtoTileNames, TileNames
 
 
@@ -47,6 +49,11 @@ class TileSet(ABC):
     def connector_symmetries(self) -> Dict[ProtoConnectors, Group]:
         pass
 
+    @property
+    @abstractmethod
+    def tile_transformation_group(self) -> Group:
+        pass
+
     def build_proto_data(self) -> Dict[ProtoTileNames, ProtoTileData]:
         return {
             name: ProtoTileData(
@@ -79,13 +86,14 @@ class TileSet(ABC):
 
     def symmetry_generators_from_symmetry_dict(self):
         return {
-            name: TileSymmetryGenerator.from_symmetries(self.tile_symmetries[name])
+            name: TileSymmetryGenerator.from_symmetries(self.tile_symmetries[name], self.tile_transformation_group)
             for name in self.proto_tile_name_enum
         }
 
     def symmetry_generators_from_constraints(self):
         return {
-            name: TileSymmetryGenerator.from_constraint_symmetries(self.proto_tile_data[name].constraints)
+            name: TileSymmetryGenerator.from_constraint_symmetries(self.proto_tile_data[name].constraints,
+                                                                   self.tile_transformation_group)
             for name in self.proto_tile_name_enum
         }
 
@@ -113,4 +121,23 @@ class TileSet(ABC):
         return {
             self.get_tile_name(proto_tile_name, g)
             for g in TileSymmetryGenerator(self.tile_symmetries[proto_tile_name]).transformations
+        }
+
+
+class SquareTileSet(TileSet, ABC):
+    @property
+    def tile_transformation_group(self) -> Group:
+        return D4_SQUARE
+
+
+class CubicTileSet(TileSet, ABC):
+    @property
+    def tile_transformation_group(self) -> Group:
+        return CUBIC_GROUP
+
+    @property
+    def tile_graphics(self) -> Dict[ProtoTileNames, TileGraphics]:
+        return {
+            name: MatrixActionGraphics(name=name, action=CubicGroupAction.cubic_id())
+            for name in self.proto_tile_name_enum
         }

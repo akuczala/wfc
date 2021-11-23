@@ -43,12 +43,12 @@ class Directions2D:
 
 
 class Directions3D:
-    UP = Directions((-1, 0, 0))
-    DOWN = Directions((1, 0, 0))
-    LEFT = Directions((0, -1, 0))
-    RIGHT = Directions((0, 1, 0))
-    IN = Directions((0, 0, 1))
-    OUT = Directions((0, 0, -1))
+    UP = Directions((0, 0, 1))
+    DOWN = Directions((0, 0, -1))
+    LEFT = Directions((-1, 0, 0))
+    RIGHT = Directions((1, 0, 0))
+    IN = Directions((0, -1, 0))
+    OUT = Directions((0, 1, 0))
 
     def __iter__(self):
         for d in [self.UP, self.DOWN, self.LEFT, self.RIGHT, self.IN, self.OUT]:

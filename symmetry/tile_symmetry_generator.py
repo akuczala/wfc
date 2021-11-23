@@ -4,11 +4,8 @@ from typing import Dict, Optional
 
 from symmetry.coset import GroupCoset
 from symmetry.groups import GroupAction, Group, GroupTargetMixin
-from symmetry.planar_groups import D4_SQUARE
 from tiles.data import TileConstraints, ProtoTileData
 from tiles.names import ProtoTileNames
-
-TILE_TRANSFORMATION_GROUP = D4_SQUARE
 
 
 class TileSymmetryGenerator:
@@ -16,14 +13,14 @@ class TileSymmetryGenerator:
         self.action_dict = action_dict
 
     @classmethod
-    def from_symmetries(cls, symmetry: Optional[Group]) -> TileSymmetryGenerator:
+    def from_symmetries(cls, symmetry: Optional[Group], tile_transformation_group: Group) -> TileSymmetryGenerator:
         if symmetry is None:
-            symmetry = TILE_TRANSFORMATION_GROUP
-        return TileSymmetryGenerator(GroupCoset.partition_group_dict(TILE_TRANSFORMATION_GROUP, symmetry))
+            symmetry = tile_transformation_group
+        return TileSymmetryGenerator(GroupCoset.partition_group_dict(tile_transformation_group, symmetry))
 
     @classmethod
-    def from_constraint_symmetries(cls, constraints: TileConstraints):
-        return TileSymmetryGenerator(constraints.generate_from_group(TILE_TRANSFORMATION_GROUP))
+    def from_constraint_symmetries(cls, constraints: TileConstraints, tile_transformation_group: Group):
+        return TileSymmetryGenerator(constraints.generate_from_group(tile_transformation_group))
 
     def _transform_tile(self, name_enum: ProtoTileNames, g_action: GroupAction, tile_data: ProtoTileData):
         return ProtoTileData(
