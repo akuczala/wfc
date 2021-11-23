@@ -73,6 +73,10 @@ CUBIC_GROUP = GeneratedGroup({
     CubicGroupAction.xy90(), CubicGroupAction.xz90(), CubicGroupAction.yz90(),
     CubicGroupAction.flip_x()})
 
+D4_SQUARE_Z = GeneratedGroup({
+    CubicGroupAction.xy90(), CubicGroupAction.flip_x()
+})
+
 for name, g in CUBIC_GROUP.generate_names().items():
     MATRIX_NAMES[g.matrix_elements] = name
 pass

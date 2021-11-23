@@ -6,6 +6,7 @@ from grid.grid_boundary import ConstantGridBoundary, PeriodicGridBoundary
 from grid.sub_grid import SubGrid
 from symmetry.planar_groups import PlanarGroupAction
 from symmetry.cubic_groups import CUBIC_GROUP
+from tile_data.building_3d import BuildingTileSet
 from tile_data.connectors import PipeProtoConnectors
 from tile_data.directed_pipe_data import DirectedPipeTileSet
 from matplotlib import pyplot as plt
@@ -15,6 +16,19 @@ from tile_data.pipe_data import PipeTileSet
 from tile_data.zelda_data import ZeldaTileSet
 from tile_data.zelda_two_level import Zelda2TileSet
 from tileset import TileSet
+
+# todo tile unions?
+# e.g. floor tile + wall tile -> floor + wall tile
+# wall tile + wall tile rotated -> corner tile
+# it might, however, be nontrivial to map these to graphics...
+# synthesizing the resulting tile graphics is its own feat
+# but composing tile constraints may save time
+
+# todo option to place connectors on tile vertices / edges rather than faces
+
+# todo rethink tile name enum / data
+# python enums are annoying
+# it is not easy to map proto tiles + symmetry op -> tile name in enum
 
 
 def make_generic_grid_2d(tileset: TileSet):
@@ -33,7 +47,7 @@ def make_generic_grid_2d(tileset: TileSet):
 
 
 def make_generic_grid_3d(tileset: TileSet):
-    shape = (10, 10, 10)
+    shape = (20, 20, 3)
     grid = GridArray(shape,
                      boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
                      tile_data=tileset.tile_data,
@@ -46,8 +60,8 @@ def make_generic_grid_3d(tileset: TileSet):
     name_array = np.array([
         grid.get_cell(pos).tile.value[0] for pos in grid.pos_iterator
     ]).reshape(grid.shape)
-    np.save('pipe3d_transform.npy', transform_array)
-    np.save('pipe3d_name.npy', name_array)
+    np.save('building_transform.npy', transform_array)
+    np.save('building_name.npy', name_array)
 
 def make_directed_pipe_grid():
     tileset = DirectedPipeTileSet()
@@ -145,6 +159,6 @@ def pixel_test(tileset):
 
 # make_directed_pipe_grid()
 #make_generic_grid_2d(PipeTileSet())
-make_generic_grid_3d(Pipe3DTileSet())
+make_generic_grid_3d(BuildingTileSet())
 # constraint_symmetry()
 pass
