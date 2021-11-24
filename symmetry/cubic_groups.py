@@ -68,6 +68,10 @@ class CubicGroupAction(MatrixGroupAction):
     def name(self):
         return MATRIX_NAMES[self.matrix_elements]
 
+    @classmethod
+    def swap_xy(cls):
+        return cls.xy90() * cls.flip_y()
+
 
 CUBIC_GROUP = GeneratedGroup({
     CubicGroupAction.xy90(), CubicGroupAction.xz90(), CubicGroupAction.yz90(),

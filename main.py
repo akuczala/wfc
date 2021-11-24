@@ -30,6 +30,14 @@ from tileset import TileSet
 # python enums are annoying
 # it is not easy to map proto tiles + symmetry op -> tile name in enum
 
+# todo non-spatial symmetries, tile variants
+# e.g. pipes of different colors, walls of different styles
+
+# todo auto tile rule simplification
+# no idea how this would be done
+
+# what are the implications of connectors intrinsically tied to specific tiles?
+# special kind of tile adjacency connector?
 
 def make_generic_grid_2d(tileset: TileSet):
     width, height = 20, 20
@@ -47,13 +55,13 @@ def make_generic_grid_2d(tileset: TileSet):
 
 
 def make_generic_grid_3d(tileset: TileSet):
-    shape = (20, 20, 3)
+    shape = (50, 50, 10)
     grid = GridArray(shape,
                      boundary=ConstantGridBoundary(UncollapsedCell.with_any_tile(tileset)),
                      tile_data=tileset.tile_data,
                      init_cell_factory=lambda: UncollapsedCell.with_any_tile(tileset)
                      )
-    grid.min_entropy_collapse()
+    grid.scanline_collapse()
     transform_array = np.array([
         grid.get_cell(pos).get_graphics().action.matrix_elements for pos in grid.pos_iterator
     ]).reshape(grid.shape + (3,3))
